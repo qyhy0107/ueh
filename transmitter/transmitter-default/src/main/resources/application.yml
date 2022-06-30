@@ -1,0 +1,41 @@
+#Probe参数配置
+jz:
+  probe:
+    key: a834ad5e-0d70-86c3-8b4a-c0c3bfdbe5f5
+    name: zabbix-transmit
+    type: DELIVERY
+    eventSourceType: UNKNOWN
+    version: 1.0
+    #接收事件端口
+    port: 44444
+    #Probe并发处理能力，为0时根据系统CPU个数自动适配
+    threadCount: 1
+#项目信息
+project:
+  id: 10
+  name: Your Event
+  #信息信息来源，file为本地文件，database为从数据库中读取
+  source: file
+#Probe状态信息上报
+transmit:
+  batch: 5
+  #间隔周期，单位s
+  interval: 1
+rules:
+  jdbc:
+    driverClassName: org.postgresql.Driver
+    databaseType: postgresql
+    url: jdbc:postgresql://localhost:5432/ueh?currentSchema=ueh_admin&TimeZone=PRC
+    username: root
+    password: 123456
+            # 初始连接数
+    initialSize: 5
+            # 最小连接池数量
+    minIdle: 10
+            # 最大连接池数量
+    maxTotal: 20
+            # 配置获取连接等待超时的时间
+    maxWaitSeconds: 60
+logging:
+  config: classpath:log4j2.xml
+  #config: config/log4j2.xml

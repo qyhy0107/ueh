@@ -1,0 +1,150 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.china-alert.event</groupId>
+		<artifactId>transmitter</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>transmitter-default</artifactId>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-parent</artifactId>
+				<version>${springboot.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.china-alert.event</groupId>
+			<artifactId>common-handler</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+		</dependency>
+		<!-- 邮件-->
+		<dependency>
+			<groupId>com.sun.mail</groupId>
+			<artifactId>javax.mail</artifactId>
+			<version>1.6.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.arronlong</groupId>
+			<artifactId>httpclientutil</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+	</dependencies>
+	<packaging>jar</packaging>
+	<build>
+		<finalName>ueh-transmit-default</finalName>
+		<!-- <pluginManagement>
+			<plugins>
+				拷贝依赖的jar外面的lib目录
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-lib</id>
+						<phase>copy</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>target/lib</outputDirectory>
+							<excludeTransitive>false</excludeTransitive>
+							<stripVersion>false</stripVersion>
+							<includeScope>runtime</includeScope>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			</plugins>
+		</pluginManagement> -->
+		<plugins>
+			<!--spring-boot-maven-plugin插件会将项目所有的依赖打入BOOT-INF/lib下，替换为maven-jar-plugin-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.2.2</version>
+				<configuration>
+					<archive>
+						<!-- 生成的jar中不要包含pom.xml和pom.properties这两个文件 -->
+						<addMavenDescriptor>false</addMavenDescriptor>
+						<manifest>
+							<!--是否要把第三方jar放到manifest的classpath中-->
+							<addClasspath>true</addClasspath>
+							<!--生成的manifest中classpath的前缀，因为要把第三方jar放到lib目录下， 所以classpath的前缀是lib/-->
+							<classpathPrefix>lib/</classpathPrefix>
+							<!--项目的主启动类-->
+							<mainClass>com.chinaalert.event.TransmitApplication</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+			<!--拷贝依赖的jar外面的lib目录-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-lib</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>target/lib</outputDirectory>
+							<excludeTransitive>false</excludeTransitive>
+							<stripVersion>false</stripVersion>
+							<includeScope>runtime</includeScope>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<!-- 打包后的包名是否包含assembly的id名 -->
+					<appendAssemblyId>false</appendAssemblyId>
+					<!-- 指定最后tar或者zip包的名字 -->
+					<finalName>ueh-transmit-default</finalName>
+					<!-- tar或者zip包的输出目录 -->
+					<outputDirectory>../../target/</outputDirectory>
+					<descriptors>
+						<!-- 引用的assembly配置文件-->
+						<descriptor>src/main/resources/assembly.xml</descriptor>
+					</descriptors>
+				</configuration>
+				<executions>
+					<!-- phase加入package后，则在执行maven package时就可以调用maven-assembly-plugin插件定义的打包方式 -->
+					<execution>
+						<!--名字任意 -->
+						<id>make-assembly</id>
+						<!-- 绑定到package生命周期阶段上 -->
+						<phase>package</phase>
+						<goals>
+							<!-- 只运行一次 -->
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

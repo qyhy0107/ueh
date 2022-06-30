@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.china.alert.project.system.mapper.SysRedisToDBMapper">
+
+    <resultMap type="com.china.alert.project.system.domain.SysRedisToDB" id="SysRedisToDBResult">
+        <id property="key" column="key"/>
+        <result property="value" column="value"/>
+        <result property="timeout" column="timeout"/>
+        <result property="timeUnit" column="timeUnit"/>
+    </resultMap>
+
+    <sql id="selectRedisToDBVo">
+      select `key`,`value`,timeout,timeUnit
+		  from sys_redis_to_db
+    </sql>
+
+    <select id="getCacheObject" parameterType="String" resultMap="SysRedisToDBResult">
+        <include refid="selectRedisToDBVo"/>
+        <where>
+        <if test="key != null and key != ''">
+            AND `key` = #{key,jdbcType=VARCHAR}
+        </if>
+        </where>
+    </select>
+
+    <insert id="setCacheObject" parameterType="com.china.alert.project.system.domain.SysRedisToDB">
+        insert into sys_redis_to_db (
+        <if test="key != null and key != '' ">`key`, </if>
+        <if test="value != null and value != '' ">`value`, </if>
+        <if test="timeout != null and timeout != '' ">timeout, </if>
+        <if test="timeUnit != null and timeUnit != '' ">timeUnit,</if>
+        <if test="expireTime != null and expireTime != '' ">expireTime</if>
+        )values(
+        <if test="key != null and key != ''">#{key}, </if>
+        <if test="value != null and value != ''">#{value}, </if>
+        <if test="timeout != null and timeout != ''">#{timeout}, </if>
+        <if test="timeUnit != null and timeUnit != ''">#{timeUnit}, </if>
+        <if test="expireTime != null and expireTime != '' ">#{expireTime} </if>
+        )
+    </insert>
+
+    <update id="updateCacheObject" parameterType="String">
+        update sys_redis_to_db
+        <set>
+            <if test="value != null and value != '' ">`value` = #{value},</if>
+            <if test="expireTime != null and expireTime != '' ">`expireTime` = #{expireTime},</if>
+        </set>
+        where `key` = #{key,jdbcType=VARCHAR}
+    </update>
+
+
+    <delete id="deleteObject" parameterType="String">
+ 		delete from sys_redis_to_db   where `key` = #{key,jdbcType=VARCHAR}
+ 	</delete>
+
+
+    <delete id="deleteExpireTime" parameterType="String">
+        delete from sys_redis_to_db   where expireTime&lt;NOW()  or expireTime is null
+ 	</delete>
+
+</mapper>

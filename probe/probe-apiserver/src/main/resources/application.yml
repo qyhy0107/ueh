@@ -1,0 +1,36 @@
+#Probe参数配置
+jz:
+  probe:
+    key: a834ad5e-0d70-86c3-8b4a-c0c3bfdbe5f5
+    name: 事件宝事件接入Probe-Api-Server
+    type: PROBE
+    eventSourceType: RESTAPI
+    version: 1.0
+    port: 0
+    #Probe并发处理能力，为0时根据系统CPU个数自动适配
+    threadCount: 1
+#项目信息
+project:
+  id: 10
+  name: Your Event
+#事件网关地址
+dispatcher:
+  host: localhost
+  port: 22222
+  enable: true
+token: 
+    # 令牌自定义标识
+    header: Authorization
+    # 令牌秘钥
+    secret: abcdefghijklmnopqrstuvwxyz
+    # 令牌有效期（默认30分钟）
+    expireTime: 180
+spring:
+  main:
+    web-application-type: SERVLET
+server:
+  port: 9999
+  servlet: 
+    context-path: /api
+  tomcat:
+    uri-encoding: UTF-8

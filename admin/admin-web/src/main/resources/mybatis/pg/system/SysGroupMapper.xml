@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.china.alert.project.system.mapper.SysGroupMapper">
+
+    <resultMap type="SysGroup" id="SysGroupResult">
+        <id property="groupId" column="group_id"/>
+        <result property="groupName" column="group_name"/>
+        <result property="flag" column="flag"/>
+        <result property="createTime" column="create_time"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <sql id="selectGroupVo">
+        select group_id, group_name, flag, create_time, remark
+        from sys_group
+    </sql>
+    <!-- 查询条件 -->
+    <sql id="sqlwhereSearch">
+        <where>
+            <if test="groupId !=null and groupId != ''">
+                and group_id = #{groupId}
+            </if>
+            <if test="groupName !=null and groupName != ''">
+                and group_name = #{groupName}
+            </if>
+            <if test="flag !=null and flag != ''">
+                and flag = #{flag}
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectGroup" parameterType="SysGroup" resultMap="SysGroupResult">
+        <include refid="selectGroupVo"/>
+        <include refid="sqlwhereSearch"/>
+    </select>
+
+    <select id="selectGroupList" parameterType="SysGroup" resultMap="SysGroupResult">
+        <include refid="selectGroupVo"/>
+        <where>
+            <if test="groupName != null and groupName != ''">
+                AND group_name like concat('%', #{groupName}, '%')
+            </if>
+            <if test="flag != null and flag != ''">
+                AND flag like concat('%', #{flag}, '%')
+            </if>
+            <!--<if test="params.beginTime != null and params.beginTime != ''">&lt;!&ndash; 开始时间检索 &ndash;&gt;
+                and date_format(create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">&lt;!&ndash; 结束时间检索 &ndash;&gt;
+                and date_format(create_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>-->
+        </where>
+    </select>
+
+    <select id="checkGroupKeyUnique" parameterType="String" resultMap="SysGroupResult">
+        <include refid="selectGroupVo"/>
+        where group_name = #{groupName}
+    </select>
+
+    <insert id="insertGroup" parameterType="SysGroup">
+        insert into sys_group (
+        <if test="groupName != null and groupName != '' ">group_name,</if>
+        <if test="flag != null and flag != '' ">flag,</if>
+        <if test="remark != null and remark != '' ">remark,</if>
+        create_time
+        )values(
+        <if test="groupName != null and groupName != ''">#{groupName},</if>
+        <if test="flag != null and flag != ''">#{flag},</if>
+        <if test="remark != null and remark != ''">#{remark},</if>
+        sysdate()
+        )
+    </insert>
+
+    <update id="updateGroup" parameterType="SysGroup">
+        update sys_group
+        <set>
+            <if test="groupName != null and groupName != ''">group_name = #{groupName},</if>
+            <if test="flag != null and flag != ''">flag = #{flag},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            create_time = LOCALTIMESTAMP(0)
+        </set>
+        where group_id = #{groupId}
+    </update>
+
+    <delete id="deleteGroupById" parameterType="Long">
+        delete from sys_group where group_id = #{groupId}
+    </delete>
+
+    <delete id="deleteGroupByIds" parameterType="Long">
+        delete from sys_group where group_id in
+        <foreach item="groupId" collection="array" open="(" separator="," close=")">
+            #{groupId}
+        </foreach>
+    </delete>
+
+</mapper>
