@@ -141,7 +141,7 @@ tomcat\static|前端打包文件夹，含静态文件
 
 在浏览器中输入http://<tomcatIP>，当出现如下界面，则表示操作安装成功。
 
-![二维码](https://gitee.com/shijianbao/dashboard/attach_files/1112927/download)
+![login](https://gitee.com/shijianbao/dashboard/attach_files/1112927/download)
 
 
 ##### 5. Zabbix告警接入
@@ -150,7 +150,7 @@ tomcat\static|前端打包文件夹，含静态文件
     介质名称：zabbix_socket.py
     Zabbix告警集成的脚本需要上传zabbix_server.conf定义的alertscripts目录下。
     Alertscripts目录截图：
-    ![二维码](https://gitee.com/shijianbao/dashboard/attach_files/1112917/download)
+    ![actionscript](https://gitee.com/shijianbao/dashboard/attach_files/1112917/download)
 
     ${datadir}这个变量：<zabbix的安装目录>/share，例如：zabbix的编译安装目录是/app/zabbix/server,那么对应的AlertScriptPath=/app/zabbix/server/share/zabbix/alertscripts
 使用命令
@@ -166,7 +166,7 @@ tomcat\static|前端打包文件夹，含静态文件
 2.	配置媒介
     此部分主要是在zabbix的前端web页面进行操作配置
     登录zabbix, 选择管理=》示警媒介类型 =》创建媒体类型。如下图所示：
-    ![二维码](https://gitee.com/shijianbao/dashboard/attach_files/1112918/download)
+    ![media](https://gitee.com/shijianbao/dashboard/attach_files/1112918/download)
 
     点击创建媒体类型界面填写信息：
     名称：zabbix_to_socket，可自定义名称
@@ -174,11 +174,11 @@ tomcat\static|前端打包文件夹，含静态文件
     脚本名称：zabbix_socket.py,上传的脚本文件名称
     脚本参数：{ALERT.MESSAGE}，必须填写为{ALERT.MESSAGE}，这个是zabbix触发器动作定义的告警内容
 
-    ![二维码](https://gitee.com/shijianbao/dashboard/attach_files/1112922/download)
+    ![media-add](https://gitee.com/shijianbao/dashboard/attach_files/1112922/download)
 
     将创建的示警媒介类型配置到用户组 ，选择管理=》成员，点击“admin”用户
 
-    ![二维码](https://gitee.com/shijianbao/dashboard/attach_files/1112914/download)
+    ![media-add-user](https://gitee.com/shijianbao/dashboard/attach_files/1112914/download)
     
     点击“报警媒介”，选择“添加”打开报警媒介配置界面
     类型：选择配置的媒介名称
@@ -186,19 +186,19 @@ tomcat\static|前端打包文件夹，含静态文件
     其他项保持默认
     配置完成之后，点击报警媒介配置界面里的“添加”，添加完成之后，点击“更新”完成配置。
 
-    ![二维码](https://gitee.com/shijianbao/dashboard/attach_files/1112915/download)
+    ![media-add-user2](https://gitee.com/shijianbao/dashboard/attach_files/1112915/download)
 
 3.	创建触发器动作
     此部分主要是在zabbix的前端web页面进行操作配置
     登录zabbix, 选择配置=》动作 =》事件源“触发器”，点击“创建动作”。如下图所示：
 
-    ![二维码](https://gitee.com/shijianbao/dashboard/attach_files/1112916/download)
+    ![action](https://gitee.com/shijianbao/dashboard/attach_files/1112916/download)
     
     打开触发器动作的配置页面
     名称：自定义触发器名称
     条件：新的触发条件可以设置为空，则会将所有的告警推送至事件宝平台
 
-    ![二维码](https://gitee.com/shijianbao/dashboard/attach_files/1112920/download)
+    ![action-add](https://gitee.com/shijianbao/dashboard/attach_files/1112920/download)
 
     动作页面里的操作部分，主要设置默认主题，消息内容，操作部分。
     默认主题：{TRIGGER.STATUS}: {EVENT.NAME}
@@ -206,13 +206,13 @@ tomcat\static|前端打包文件夹，含静态文件
     {HOST.HOST}#:#{HOST.NAME}#:#{TRIGGER.NAME}#:#{TRIGGER.TEMPLATE.NAME}#:#{TRIGGER.SEVERITY}#:#{TRIGGER.STATUS}#:#{TRIGGER.DESCRIPTION}#:#{ITEM.KEY1}#:#{ITEM.LASTVALUE}#:#{DATE} {TIME}#:#{TRIGGER.URL}#:#{TRIGGER.ID}#:#a834ad5e-0d70-86c3-8b4a-c0c3bfdbe5f5#:#{EVENT.TAGS}
     特别注意：a834ad5e-0d70-86c3-8b4a-c0c3bfdbe5f5，这个probeID需要从ueh-zabbix-api-server的配置文件中的key获取
 
-    ![二维码](https://gitee.com/shijianbao/dashboard/attach_files/1112912/download)
+    ![probe-key](https://gitee.com/shijianbao/dashboard/attach_files/1112912/download)
 
-    ![二维码](https://gitee.com/shijianbao/dashboard/attach_files/1112921/download)
+    ![message](https://gitee.com/shijianbao/dashboard/attach_files/1112921/download)
  
     操作细节部分修改标红部分
 
-    ![二维码](https://gitee.com/shijianbao/dashboard/attach_files/1112925/download)
+    ![messsage-send](https://gitee.com/shijianbao/dashboard/attach_files/1112925/download)
 
     恢复操作页面修改标红框部分
     默认主题：{TRIGGER.STATUS}: {EVENT.NAME}
@@ -221,7 +221,7 @@ tomcat\static|前端打包文件夹，含静态文件
     特别注意：a834ad5e-0d70-86c3-8b4a-c0c3bfdbe5f5，这个probeID需要从ueh-zabbix-api-server的配置文件中的key获取
     操作：选择通知所有参与者
 
-    ![二维码](https://gitee.com/shijianbao/dashboard/attach_files/1112913/download)
+    ![recovery](https://gitee.com/shijianbao/dashboard/attach_files/1112913/download)
 
 #### 交流
 扫描微信加群：
