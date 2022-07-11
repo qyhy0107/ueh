@@ -11,7 +11,7 @@
 安装四步走：
 
 ###### 1. 前置检查
-1. 防火墙、SELinux关闭
+1. 前提需要将防火墙以及SELinux都关闭。
 
 使用命令
 顺序|命令|说明
@@ -29,7 +29,7 @@
     Tomcat 9.0.64
     JDK 1.8
 ##### 2. 介质下载
-    下载编译完成的包至/tmp/plugin目录
+    事件宝平台介质包下载完毕之后，上传至/tmp/plugin目录
 使用命令
 顺序|命令|说明
 ---|---|---
@@ -38,25 +38,25 @@
 3|wget http://101.133.166.29/download/sjb.tar.gz|下载事件宝介质
 4|tar zxvf sjb.tar.gz|解压事件宝介质
 ##### 3. 初始化数据库
-	初始化PostgreSQL数据库
+	针对于已安装的PostgreSQL数据，首先要做的工作的是初始化PostgreSQL数据库。
 使用命令
 顺序|命令|说明
 ---|---|---
 1|su - postgres|切换至PostgreSQL的postgres用户
-2|cd /tmp/plugin/sql|进入事件宝数据库存放目录
+2|cd /tmp/plugin/ueh-database|进入事件宝数据库存放目录
 3|psql <ueh_all.sql|导入事件宝数据库
 ##### 4. 告警平台部署
     告警平台是使用微服务方式部署，主要是通过jar包方式运行。
 1. 介质说明
 
-类型|文件名称|说明
+介质目录|文件名称|说明
 ---|---|---
-dispatcher|ueh-dispatcher|事件分发
-transmit|ueh-transmit-default|通知处理
-zabbix|ueh-probe-api-server|ZABBIX事件接入
-zabbix|ueh-handler-default|ZABBIX事件处理
+ueh-backend|ueh-dispatcher.zip|事件分发
+ueh-backend|ueh-transmit-default.zip|通知处理
+ueh-probe|ueh-probe-api-server.zip|ZABBIX事件接入
+ueh-backend|ueh-handler-default.zip|ZABBIX事件处理
 2. 目录说明
-    以ueh-handler为例,说明文件如下
+    以ueh-probe-api-server.zip为例,说明文件如下
 
 顺序|路径|说明
 ---|---|---
@@ -71,7 +71,8 @@ zabbix|ueh-handler-default|ZABBIX事件处理
     <RollingFile name="rollingFile" fileName="${LOG_HOME}/ueh-probe-api-server.log" filePattern="${LOG_HOME}/$${date:yyyy}/ueh-probe-api-server-%d{yyyy-MM-dd}-%i.log">
 
 3. 告警平台部署
-    将zabbix接收事件模块、公共消息分发模块、zabbix事件处理模块、公共消息发送模块安装，安装前需要创建程序安装目录/app/ueh目录
+    针对于介质说明中的四个部分进行安装部署，安装前需要创建程序安装目录/app/ueh目录
+
 使用命令
 顺序|命令|说明
 ---|---|---
@@ -84,10 +85,12 @@ zabbix|ueh-handler-default|ZABBIX事件处理
 使用命令
 顺序|命令|说明
 ---|---|---
-1|vim /app/ueh/ueh-handler-default/config/application.yml	打开ueh-handler-default的配置文件
-2|jdbc:postgresql://localhost:5432/ueh?currentSchema=ueh_admin&TimeZone=PRC <br> username: root <br> password: 123456|修改handler连接PostgreSQL数据库的地址、用户名、密码
-3|cd /app/ueh/ueh-handler-default/|切换至程序根目录
-4|nohup java -jar ueh-handler-default.jar 2>&1 &|启动模块
+1|cd /tmp/plugin/ued-backend|进入介质存放目录
+2|unzip ueh-handler-default.zip|解压ueh-handler-default介质
+3|vim /app/ueh/ueh-handler-default/config/application.yml|打开ueh-handler-default的配置文件
+4|jdbc:postgresql://localhost:5432/ueh?currentSchema=ueh_admin&TimeZone=PRC <br> username: root <br> password: 123456|修改handler连接PostgreSQL数据库的地址、用户名、密码
+5|cd /app/ueh/ueh-handler-default/|切换至程序根目录
+6|nohup java -jar ueh-handler-default.jar 2>&1 &|启动模块
 
 2. ueh-transmit-default
 
