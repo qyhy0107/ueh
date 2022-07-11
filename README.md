@@ -11,7 +11,7 @@
 安装四步走：
 
 ###### 1. 前置检查
-1. 前提需要将防火墙以及SELinux都关闭。
+1). 前提需要将防火墙以及SELinux都关闭。
 
 使用命令
 顺序|命令|说明
@@ -21,7 +21,7 @@
 3 | systemctl disable firewalld.service | 禁用防火墙服务
 4 | systemctl stop firewalld.service | 关闭防火墙服务
 
-2. 部署软件
+2). 部署软件
 
 安装准备前，一台系统为 CentOS7.X 的虚拟机或物理机，并安装完成 PostgreSQL、Tomcat、JDK软件，简单 yum 安装或源码编译安装即可。
 软件版本如下：
@@ -61,7 +61,7 @@ ueh-database|ueh_all.sql|事件宝数据库文件
 3|psql <ueh_all.sql|导入事件宝数据库
 ##### 4. 告警平台部署
     告警平台是使用微服务方式部署，主要是通过jar包方式运行。
-1. 介质说明
+1). 介质说明
 
 介质目录|文件名称|说明
 ---|---|---
@@ -69,7 +69,7 @@ ueh-backend|ueh-dispatcher.zip|事件分发
 ueh-backend|ueh-transmit-default.zip|通知处理
 ueh-probe|ueh-probe-api-server.zip|ZABBIX事件接入
 ueh-backend|ueh-handler-default.zip|ZABBIX事件处理
-2. 目录说明
+2). 目录说明
     以ueh-probe-api-server.zip为例,说明文件如下
 
 顺序|路径|说明
@@ -84,7 +84,7 @@ ueh-backend|ueh-handler-default.zip|ZABBIX事件处理
     <property name="LOG_HOME">/var/log </property>
     <RollingFile name="rollingFile" fileName="${LOG_HOME}/ueh-probe-api-server.log" filePattern="${LOG_HOME}/$${date:yyyy}/ueh-probe-api-server-%d{yyyy-MM-dd}-%i.log">
 
-3. 告警平台部署
+3). 告警平台部署
     针对于介质说明中的四个部分进行安装部署，安装前需要创建程序安装目录/app/ueh目录
 
 使用命令
@@ -142,7 +142,7 @@ ueh-backend|ueh-handler-default.zip|ZABBIX事件处理
 4|cd /app/ueh/ueh-probe-api-server/|切换至程序根目录
 5|nohup java -jar ueh-probe-api-server.jar 2>&1 &|启动模块
 
-5. 前端配置
+##### 5. 前端配置
 
 前端配置是基于tomcat的容器进行部署，例如tomcat部署在/app/apache-tomcat-9.0.64目录
 介质目录|部署文件|说明
@@ -167,7 +167,7 @@ ueh-front|admin-ui|static、favicon.ico、index.html
 ![login](https://gitee.com/shijianbao/dashboard/attach_files/1112927/download)
 
 
-##### 5. Zabbix告警接入
+##### 6. Zabbix告警接入
     前提条件，Zabbix监控系统已部署成功且正常使用。
 
 介质目录|部署文件|说明
