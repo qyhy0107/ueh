@@ -1,7 +1,7 @@
 # 事件宝
 
 #### 介绍
-事件宝是竭峙信息自主设计、研发的IT数据中心事件管理平台，提供事件接入、处置策略配置、通知策略配置等全流程事件处理。核心功能包括：
+事件宝是竭峙(jiezhi)信息自主设计、研发的IT数据中心事件管理平台，提供事件接入、处置策略配置、通知策略配置等全流程事件处理。核心功能包括：
 1. 事件管理：可对事件进行统一的查看，搜索。
 2. 配置管理：可新增事件接入、处置策略、通知策略，处置策略包括事件压缩、事件恢复、事件分组、事件升降级、事件屏蔽等。
 
@@ -25,9 +25,12 @@
 
 安装准备前，一台系统为 CentOS7.X 的虚拟机或物理机，并安装完成 PostgreSQL、Tomcat、JDK软件，简单 yum 安装或源码编译安装即可。
 软件版本如下：
-    PostgreSQL 13.7
-    Tomcat 9.0.64
-    JDK 1.8
+顺序|命令|说明
+---|---|---
+1|PostgreSQL 13.7|PostgreSQL数据库版本
+2|Tomcat 9.0.64|Tomcat版本
+3|JDK 1.8|JDK版本
+
 ##### 2. 介质下载
     事件宝平台介质包下载完毕之后，上传至/tmp/plugin目录
 使用命令
@@ -35,10 +38,21 @@
 ---|---|---
 1|mkdir -p /tmp/plugin|创建介质存放目录
 2|cd /tmp/plugin|进入介质存放目录
-3|wget http://101.133.166.29/download/sjb.tar.gz|下载事件宝介质
-4|tar zxvf sjb.tar.gz|解压事件宝介质
+3|wget https://gitee.com/shijianbao/ueh/attach_files/1112933/download/ueh-probe.zip|事件宝Probe接入文件
+4|wget https://gitee.com/shijianbao/ueh/attach_files/1112934/download/ueh-database.zip|事件宝数据库文件
+5|wget https://gitee.com/shijianbao/ueh/attach_files/1112935/download/ueh-backend.zip|事件宝后端服务
+6|wget https://gitee.com/shijianbao/ueh/attach_files/1112936/download/ueh-front.zip|事件宝前端服务
+7|unzip ueh-probe.zip|解压事件宝Probe接入文件
+8|unzip ueh-database.zip|解压事件宝数据库文件
+9|unzip ueh-backend.zip|解压事件宝后端服务
+10|unzip ueh-front.zip|解压事件宝前端服务
+
 ##### 3. 初始化数据库
 	针对于已安装的PostgreSQL数据，首先要做的工作的是初始化PostgreSQL数据库。
+介质目录|部署文件|说明
+---|---|---
+ueh-database|ueh_all.sql|事件宝数据库文件
+
 使用命令
 顺序|命令|说明
 ---|---|---
@@ -85,56 +99,62 @@ ueh-backend|ueh-handler-default.zip|ZABBIX事件处理
 使用命令
 顺序|命令|说明
 ---|---|---
-1|cd /tmp/plugin/ued-backend|进入介质存放目录
+1|cd /tmp/plugin/ueh-backend|进入介质存放目录
 2|unzip ueh-handler-default.zip|解压ueh-handler-default介质
-3|vim /app/ueh/ueh-handler-default/config/application.yml|打开ueh-handler-default的配置文件
-4|jdbc:postgresql://localhost:5432/ueh?currentSchema=ueh_admin&TimeZone=PRC <br> username: root <br> password: 123456|修改handler连接PostgreSQL数据库的地址、用户名、密码
-5|cd /app/ueh/ueh-handler-default/|切换至程序根目录
-6|nohup java -jar ueh-handler-default.jar 2>&1 &|启动模块
+3|mv ueh-handler-default /app/ueh|复制安装文件至程序安装目录
+4|vim /app/ueh/ueh-handler-default/config/application.yml|打开ueh-handler-default的配置文件
+5|jdbc:postgresql://localhost:5432/ueh?currentSchema=ueh_admin&TimeZone=PRC <br> username: root <br> password: 123456|修改handler连接PostgreSQL数据库的地址、用户名、密码
+6|cd /app/ueh/ueh-handler-default/|切换至程序根目录
+7|nohup java -jar ueh-handler-default.jar 2>&1 &|启动模块
 
 2. ueh-transmit-default
 
 使用命令
 顺序|命令|说明
 ---|---|---
-1|mv /tmp/plugin/ueh/ueh-transmit-default /app/ueh|复制安装文件至程序安装目录
-2|vim /app/ueh/ueh-transmit-default/config/application.yml|打开ueh-transmit-default的配置文件
-3|jdbc:postgresql://localhost:5432/ueh?currentSchema=ueh_admin&TimeZone=PRC <br>username: root<br>password: 123456|修改transmit连接PostgreSQL数据库的地址、用户名、密码
-4|cd /app/ueh/ueh-transmit-default|切换至程序根目录
-5|nohup java -jar ueh-transmit-default.jar 2>&1 &|启动模块
+1|cd /tmp/plugin/ueh-backend|进入介质存放目录
+2|unzip ueh-transmit-default.zip|解压ueh-transmit-default介质
+3|mv ueh-transmit-default /app/ueh|复制安装文件至程序安装目录
+4|vim /app/ueh/ueh-transmit-default/config/application.yml|打开ueh-transmit-default的配置文件
+5|jdbc:postgresql://localhost:5432/ueh?currentSchema=ueh_admin&TimeZone=PRC <br>username: root<br>password: 123456|修改transmit连接PostgreSQL数据库的地址、用户名、密码
+6|cd /app/ueh/ueh-transmit-default|切换至程序根目录
+7|nohup java -jar ueh-transmit-default.jar 2>&1 &|启动模块
 
 3. ueh-dispatcher
 
 使用命令
 顺序|命令|说明
 ---|---|---
-1|mv /tmp/plugin/ueh/ueh-dispatcher /app/ueh|复制安装文件至程序安装目录
-2|cd /app/ueh/ueh-dispatcher/|切换至程序根目录
-3|nohup java -jar ueh-dispatcher.jar 2>&1 &|启动模块
+1|cd /tmp/plugin/ueh-backend|进入介质存放目录
+2|unzip ueh-dispatcher.zip|解压ueh-dispatcher介质
+3|mv ueh-dispatcher /app/ueh|复制安装文件至程序安装目录
+4|cd /app/ueh/ueh-dispatcher/|切换至程序根目录
+5|nohup java -jar ueh-dispatcher.jar 2>&1 &|启动模块
 
 4. ueh-probe-api-server
 
 使用命令
 顺序|命令|说明
 ---|---|---
-1|mv /tmp/plugin/ueh/ueh-probe-api-server /app/ueh|复制安装文件至程序安装目录
+1|cd /tmp/plugin/ueh-probe|进入介质存放目录
+2|unzip ueh-probe-api-server.zip|解压ueh-probe-api-server介质
+1|mv ueh-probe-api-server /app/ueh|复制安装文件至程序安装目录
 2|cd /app/ueh/ueh-probe-api-server/|切换至程序根目录
 3|nohup java -jar ueh-probe-api-server.jar 2>&1 &|启动模块
 
 5. 前端配置
 
 前端配置是基于tomcat的容器进行部署，例如tomcat部署在/app/apache-tomcat-9.0.64目录
-部署文件|说明
----|---
-tomcat\admin-web.war|后端打包文件
-tomcat\前端文件|前端打包文件夹，含favicon.ico、index.html
-tomcat\static|前端打包文件夹，含静态文件
+介质目录|部署文件|说明
+---|---|---
+ueh-front|admin-web.war|后端文件
+ueh-front|admin-ui|static、favicon.ico、index.html
 
 执行命令
 顺序|命令|说明
 ---|---|---
-1|cp /tmp/plugin/tomcat/admin-web.war /app/apache-tomcat-9.0.64/webapps|拷贝admin-web.war至tomcat的webapps目录下
-2|cp -a /tmp/plugin/tomcat/static /tmp/plugin/tomcat/favicon.ico /tmp/plugin/tomcat/index.html /app/apache-tomcat-9.0.64/webapps/ROOT/|拷贝前端文件至tomcat的webapps/ROOT目录下
+1|cp /tmp/plugin/ueh-front/admin-web.war /app/apache-tomcat-9.0.64/webapps|拷贝admin-web.war至tomcat的webapps目录下
+2|cp -a /tmp/plugin/ueh-front/admin-ui/* /app/apache-tomcat-9.0.64/webapps/ROOT/|拷贝前端文件至tomcat的webapps/ROOT目录下
 3|sh /app/apache-tomcat-9.0.64/bin/startup.sh|启动tomcat
 4|sh /app/apache-tomcat-9.0.64/bin/stop.sh|等待10秒之后，停止tomcat
 5|cd /app/apache-tomcat-9.0.64/webapps/admin-web/WEB-INF/classes|进入admin-web文件夹
@@ -149,6 +169,11 @@ tomcat\static|前端打包文件夹，含静态文件
 
 ##### 5. Zabbix告警接入
     前提条件，Zabbix监控系统已部署成功且正常使用。
+
+介质目录|部署文件|说明
+---|---|---
+ueh-probe|zabbix_socket.py|zabbix与告警平台接入文件
+
 1.	上传介质
     介质名称：zabbix_socket.py
     Zabbix告警集成的脚本需要上传zabbix_server.conf定义的alertscripts目录下。
