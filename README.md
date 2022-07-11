@@ -59,6 +59,7 @@ ueh-database|ueh_all.sql|事件宝数据库文件
 1|su - postgres|切换至PostgreSQL的postgres用户
 2|cd /tmp/plugin/ueh-database|进入事件宝数据库存放目录
 3|psql <ueh_all.sql|导入事件宝数据库
+
 ##### 4. 告警平台部署
     告警平台是使用微服务方式部署，主要是通过jar包方式运行。
 1). 介质说明
@@ -69,6 +70,7 @@ ueh-backend|ueh-dispatcher.zip|事件分发
 ueh-backend|ueh-transmit-default.zip|通知处理
 ueh-probe|ueh-probe-api-server.zip|ZABBIX事件接入
 ueh-backend|ueh-handler-default.zip|ZABBIX事件处理
+
 2). 目录说明
     以ueh-probe-api-server.zip为例,说明文件如下
 
@@ -174,7 +176,7 @@ ueh-front|admin-ui|static、favicon.ico、index.html
 ---|---|---
 ueh-probe|zabbix_socket.py|zabbix与告警平台接入文件
 
-1.	上传介质
+1).	上传介质
     介质名称：zabbix_socket.py
     Zabbix告警集成的脚本需要上传zabbix_server.conf定义的alertscripts目录下。
     Alertscripts目录截图：
@@ -191,7 +193,7 @@ ueh-probe|zabbix_socket.py|zabbix与告警平台接入文件
 5|ProbeIP = "127.0.0.1"|修改ProbeIP的地址、参考ueh-probe-api-server的部署地址
 6|修改完之后，先按ESC，使用:wq保存退出|	
 
-2.	配置媒介
+2).	配置媒介
     此部分主要是在zabbix的前端web页面进行操作配置
     登录zabbix, 选择管理=》示警媒介类型 =》创建媒体类型。如下图所示：
     ![media](https://gitee.com/shijianbao/dashboard/attach_files/1112918/download)
@@ -216,7 +218,7 @@ ueh-probe|zabbix_socket.py|zabbix与告警平台接入文件
 
     ![media-add-user2](https://gitee.com/shijianbao/dashboard/attach_files/1112915/download)
 
-3.	创建触发器动作
+3).	创建触发器动作
     此部分主要是在zabbix的前端web页面进行操作配置
     登录zabbix, 选择配置=》动作 =》事件源“触发器”，点击“创建动作”。如下图所示：
 
