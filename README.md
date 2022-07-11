@@ -159,7 +159,7 @@ ueh-front|admin-ui|static、favicon.ico、index.html
 4|sh /app/apache-tomcat-9.0.64/bin/stop.sh|等待10秒之后，停止tomcat
 5|cd /app/apache-tomcat-9.0.64/webapps/admin-web/WEB-INF/classes|进入admin-web文件夹
 6|vi application-druid.yml|编辑配置数据库连接配置文件并保存退出
-7|url: jdbc:postgresql://localhost:5432/ueh?currentSchema=ueh_admin&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT<br>username: root<br>password: password|修改PostgreSQL的地址、用户名、密码
+7|url: jdbc:postgresql://localhost:5432/ueh?currentSchema=ueh_admin&useUnicode=true&characterEncoding=utf8<br>&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT<br>username: root<br>password: password|修改PostgreSQL的地址、用户名、密码
 8|sh /app/apache-tomcat-9.0.64/bin/startup.sh|启动tomcat
 
 在浏览器中输入http://<tomcatIP>，当出现如下界面，则表示操作安装成功。
