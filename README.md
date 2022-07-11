@@ -181,6 +181,7 @@ ueh-probe|zabbix_socket.py|zabbix与告警平台接入文件
 介质名称：zabbix_socket.py
 Zabbix告警集成的脚本需要上传zabbix_server.conf定义的alertscripts目录下。
 Alertscripts目录截图：
+
 ![actionscript](https://gitee.com/shijianbao/dashboard/attach_files/1112917/download)
 
 ${datadir}这个变量：<zabbix的安装目录>/share，例如：zabbix的编译安装目录是/app/zabbix/server,那么对应的AlertScriptPath=/app/zabbix/server/share/zabbix/alertscripts
@@ -215,7 +216,6 @@ ${datadir}这个变量：<zabbix的安装目录>/share，例如：zabbix的编�
 将创建的示警媒介类型配置到用户组 ，选择管理=》成员，点击“admin”用户
 
 ![media-add-user](https://gitee.com/shijianbao/dashboard/attach_files/1112914/download)
-    
 
 点击“报警媒介”，选择“添加”打开报警媒介配置界面
 
@@ -243,6 +243,7 @@ ${datadir}这个变量：<zabbix的安装目录>/share，例如：zabbix的编�
 动作页面里的操作部分，主要设置默认主题，消息内容，操作部分。
 
 故障操作页面修改标红框部分
+
     默认主题：{TRIGGER.STATUS}: {EVENT.NAME}
     消息内容：
     {HOST.HOST}#:#{HOST.NAME}#:#{TRIGGER.NAME}#:#{TRIGGER.TEMPLATE.NAME}#:#{TRIGGER.SEVERITY}#:#{TRIGGER.STATUS}#:#{TRIGGER.DESCRIPTION}#:#{ITEM.KEY1}#:#{ITEM.LASTVALUE}#:#{DATE} {TIME}#:#{TRIGGER.URL}#:#{TRIGGER.ID}#:#a834ad5e-0d70-86c3-8b4a-c0c3bfdbe5f5#:#{EVENT.TAGS}
