@@ -138,9 +138,9 @@ ueh-backend|ueh-handler-default.zip|ZABBIX事件处理
 ---|---|---
 1|cd /tmp/plugin/ueh-probe|进入介质存放目录
 2|unzip ueh-probe-api-server.zip|解压ueh-probe-api-server介质
-1|mv ueh-probe-api-server /app/ueh|复制安装文件至程序安装目录
-2|cd /app/ueh/ueh-probe-api-server/|切换至程序根目录
-3|nohup java -jar ueh-probe-api-server.jar 2>&1 &|启动模块
+3|mv ueh-probe-api-server /app/ueh|复制安装文件至程序安装目录
+4|cd /app/ueh/ueh-probe-api-server/|切换至程序根目录
+5|nohup java -jar ueh-probe-api-server.jar 2>&1 &|启动模块
 
 5. 前端配置
 
