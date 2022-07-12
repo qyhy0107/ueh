@@ -166,7 +166,7 @@ ueh-front|admin-ui|static、favicon.ico、index.html
 
 在浏览器中输入http://<tomcatIP>，当出现如下界面，则表示操作安装成功。
 
-![login](https://gitee.com/shijianbao/dashboard/attach_files/1112927/download)
+![login](images/login.png)
 
 
 ##### 6. Zabbix告警接入
@@ -182,7 +182,7 @@ ueh-probe|zabbix_socket.py|zabbix与告警平台接入文件
 Zabbix告警集成的脚本需要上传zabbix_server.conf定义的alertscripts目录下。
 Alertscripts目录截图：
 
-![actionscript](https://gitee.com/shijianbao/dashboard/attach_files/1112917/download)
+![alertscript](images/alertscript.png)
 
 ${datadir}这个变量：<zabbix的安装目录>/share，例如：zabbix的编译安装目录是/app/zabbix/server,那么对应的AlertScriptPath=/app/zabbix/server/share/zabbix/alertscripts
 
@@ -202,7 +202,7 @@ ${datadir}这个变量：<zabbix的安装目录>/share，例如：zabbix的编�
 此部分主要是在zabbix的前端web页面进行操作配置
 登录zabbix, 选择管理=》示警媒介类型 =》创建媒体类型。如下图所示：
 
-![media](https://gitee.com/shijianbao/dashboard/attach_files/1112918/download)
+![media](images/media.png)
 
 点击创建媒体类型界面填写信息：
 
@@ -211,11 +211,11 @@ ${datadir}这个变量：<zabbix的安装目录>/share，例如：zabbix的编�
     脚本名称：zabbix_socket.py,上传的脚本文件名称
     脚本参数：{ALERT.MESSAGE}，必须填写为{ALERT.MESSAGE}，这个是zabbix触发器动作定义的告警内容
 
-![media-add](https://gitee.com/shijianbao/dashboard/attach_files/1112922/download)
+![media-add](images/media-add.png)
 
 将创建的示警媒介类型配置到用户组 ，选择管理=》成员，点击“admin”用户
 
-![media-add-user](https://gitee.com/shijianbao/dashboard/attach_files/1112914/download)
+![media-add-user](images/media-add-user.png)
 
 点击“报警媒介”，选择“添加”打开报警媒介配置界面
 
@@ -224,21 +224,21 @@ ${datadir}这个变量：<zabbix的安装目录>/share，例如：zabbix的编�
 
 配置完成之后，点击报警媒介配置界面里的“添加”，添加完成之后，点击“更新”完成配置。
 
-![media-add-user2](https://gitee.com/shijianbao/dashboard/attach_files/1112915/download)
+![media-add-user2](images/media-add-user2.png)
 
 3).	创建触发器动作
 
 此部分主要是在zabbix的前端web页面进行操作配置
 登录zabbix, 选择配置=》动作 =》事件源“触发器”，点击“创建动作”。如下图所示：
 
-![action](https://gitee.com/shijianbao/dashboard/attach_files/1112916/download)
+![action](images/action.png)
     
 打开触发器动作的配置页面
 
     名称：自定义触发器名称
     条件：新的触发条件可以设置为空，则会将所有的告警推送至事件宝平台
 
-![action-add](https://gitee.com/shijianbao/dashboard/attach_files/1112920/download)
+![action-add](images/action-add.png)
 
 动作页面里的操作部分，主要设置默认主题，消息内容，操作部分。
 
@@ -249,13 +249,13 @@ ${datadir}这个变量：<zabbix的安装目录>/share，例如：zabbix的编�
     {HOST.HOST}#:#{HOST.NAME}#:#{TRIGGER.NAME}#:#{TRIGGER.TEMPLATE.NAME}#:#{TRIGGER.SEVERITY}#:#{TRIGGER.STATUS}#:#{TRIGGER.DESCRIPTION}#:#{ITEM.KEY1}#:#{ITEM.LASTVALUE}#:#{DATE} {TIME}#:#{TRIGGER.URL}#:#{TRIGGER.ID}#:#a834ad5e-0d70-86c3-8b4a-c0c3bfdbe5f5#:#{EVENT.TAGS}
     特别注意：a834ad5e-0d70-86c3-8b4a-c0c3bfdbe5f5，这个probeID需要从ueh-zabbix-api-server的配置文件中的key获取
 
-![probe-key](https://gitee.com/shijianbao/dashboard/attach_files/1112912/download)
+![probe-key](images/probe-key.png)
 
-![message](https://gitee.com/shijianbao/dashboard/attach_files/1112921/download)
+![message](images/message.png)
  
 操作细节部分修改标红部分
 
-![messsage-send](https://gitee.com/shijianbao/dashboard/attach_files/1112925/download)
+![messsage-send](images/message-send.png)
 
 恢复操作页面修改标红框部分
 
@@ -265,10 +265,10 @@ ${datadir}这个变量：<zabbix的安装目录>/share，例如：zabbix的编�
     特别注意：a834ad5e-0d70-86c3-8b4a-c0c3bfdbe5f5，这个probeID需要从ueh-zabbix-api-server的配置文件中的key获取
     操作：选择通知所有参与者
 
-![recovery](https://gitee.com/shijianbao/dashboard/attach_files/1112913/download)
+![recovery](images/recovery.png)
 
 #### 交流
 
 扫描微信加群：
 
-![二维码](https://gitee.com/shijianbao/dashboard/attach_files/1112924/download)
+![二维码](images/mhwechat.png)
