@@ -5,7 +5,7 @@
         <!-- 邮箱 -->
         <!-- 邮箱表单 -->
         <el-tab-pane label="邮件">
-          <el-form ref="mail" :model="mailForm" :rules="mailRules" label-width="100px" class="demo-ruleForm" label-position="top">
+          <el-form ref="mail" :model="mailForm" :rules="mailRules" label-width="100px"  label-position="top">
             <el-row :gutter="20">
               <el-col :span="12">
                 <el-form-item label="邮件服务器" prop="media_settings.mail_server">
@@ -39,8 +39,8 @@
               <el-input v-model.trim="mailForm.media_templet" type="textarea" :rows="10" placeholder="请填入邮件模板" />
             </el-form-item>
             <el-form-item>
-              <el-button size="mini" @click="resetForm('mail')">刷新</el-button>
-              <el-button type="primary" size="mini" @click="submitForm('mail')">保存</el-button>
+              <el-button size="mini" class="cancel_button" @click="resetForm('mail')">刷新</el-button>
+              <el-button type="primary" class="confirm_button" size="mini" @click="submitForm('mail')">保存</el-button>
             </el-form-item>
           </el-form>
         </el-tab-pane>
@@ -393,11 +393,5 @@ export default {
     }
   }
 }
-.dark{
-.el-textarea /deep/.el-textarea__inner {
-    background: #474f5f!important;
-    border: #474f5f!important;
-    color: white!important;
-}
-}
+
 </style>

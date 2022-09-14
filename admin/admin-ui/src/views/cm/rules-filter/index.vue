@@ -24,14 +24,18 @@
           <!-- <el-button type="primary" size="mini" @click="onSearch">查询</el-button>
           <el-button class="addButton" size="mini" @click="onAdd">新增</el-button>
           <el-button size="mini" @click="onRest">重置</el-button> -->
-          <el-button type="primary" size="mini" @click="onSearch">查询</el-button>
-          <el-button size="mini" @click="onRest">重置</el-button>
-          <el-button class="addButton" size="mini" @click="onAdd">新增</el-button>
+          <el-button class="blueButton" size="mini" @click="onSearch">查询</el-button>
+          <el-button class="grayButton" size="mini" @click="onRest">重置</el-button>
+          <el-button class="grayButton" size="mini" @click="onAdd">新增</el-button>
         </el-form-item>
       </el-form>
     </div>
     <div class="showTableBox" :style="{ height: OperateBoxHeight + 'px' }">
-      <el-table v-if="dataList.length" :data="dataList" border>
+      <el-table :data="dataList" :style="{ height: OperateBoxHeight-60 + 'px' }" empty-text=" " element-loading-text="拼命加载中..." >
+        <!-- <el-table-column prop="id" label="id" v-if="show" width="160" /> -->
+        <template v-if="!loading" slot="empty" style="height:100%">
+          <Deficiency width="30%" height="auto" />
+        </template>
         <!-- <el-table-column prop="id" label="id" v-if="show" width="160" /> -->
         <el-table-column prop="name" min-width="10%" label="策略名称" show-overflow-tooltip />
         <!-- <el-table-column prop="rule_type" label="策略类型" :formatter="getRuleType" width="160" align="center" /> -->
@@ -41,24 +45,16 @@
         <el-table-column prop="effectValue" min-width="18%" label="屏蔽类型" :formatter="getEffectValue" show-overflow-tooltip />
         <el-table-column prop="lm_timestamp" min-width="12%" label="最后修改时间" show-overflow-tooltip />
         <el-table-column prop="modifier" min-width="8%" label="最后修改人" show-overflow-tooltip />
-        <el-table-column prop="is_enable" min-width="6%" label="启用" align="center" show-overflow-tooltip>
-          <template slot-scope="scope">
-            <span v-if="scope.row.is_enable == true">
-              <el-tag>启用</el-tag>
-            </span>
-            <span v-else>
-              <el-tag type="danger">不启用</el-tag>
-            </span>
+        <el-table-column prop="on_completion" label="过期保留" align="center" width="100">
+          <template slot-scope="scope" width="100">
+            <span v-if="scope.row.on_completion == 'Y'">保留</span>
+            <span v-else class="brownColor">不保留</span>
           </template>
         </el-table-column>
-        <el-table-column prop="on_completion" min-width="6%" label="过期保留" align="center" show-overflow-tooltip>
+        <el-table-column prop="is_enable" label="启用" align="center" width="100">
           <template slot-scope="scope">
-            <span v-if="scope.row.on_completion == 'Y'">
-              <el-tag>保留</el-tag>
-            </span>
-            <span v-else>
-              <el-tag type="danger">不保留</el-tag>
-            </span>
+            <span v-if="scope.row.isEnable == false" class="brownColor">不启用</span>
+            <span v-else>启用</span>
           </template>
         </el-table-column>
         <el-table-column prop="remark" label="备注" show-overflow-tooltip min-width="6%" />
@@ -70,25 +66,22 @@
           </template>
         </el-table-column>
       </el-table>
-      <Deficiency v-else width="25%" height="auto" />
-      <pagination v-show="totalCount > 0" :page-sizes="[10, 20, 50, 200]" :total="totalCount" :page.sync="queryParams.start" :limit.sync="queryParams.limit" @pagination="search()" />
+      <pagination v-show="totalCount > 0&&dataList.length" :page-sizes="[10, 20, 50, 200]" :total="totalCount" :page.sync="queryParams.start" :limit.sync="queryParams.limit" @pagination="search()" />
     </div>
     <!-- 添加或修改菜单对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="1000px" class="menuDialog">
-      <el-row style="height:100%">
-        <el-col :span="3" style="height:100%">
-          <el-menu v-model="activeIndex" :default-active="activeIndex" class="el-menu-vertical-demo" @select="IsActive">
-            <el-menu-item index="2">
-              <span slot="title">基本信息</span>
-            </el-menu-item>
-            <el-menu-item index="3">
-              <span slot="title">规则</span>
-            </el-menu-item>
-          </el-menu>
-        </el-col>
+      <el-menu v-model="activeIndex" mode="horizontal" :default-active="activeIndex" @select="IsActive">
+        <el-menu-item index="2">
+          <span slot="title">基本信息</span>
+        </el-menu-item>
+        <el-menu-item index="3">
+          <span slot="title">规则</span>
+        </el-menu-item>
+      </el-menu>
+      <el-row style="height:95%">
         <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="100px" class="demo-ruleForm">
           <!-- 基本信息 -->
-          <el-col v-show="activeIndex == '2'" :span="21" style="padding:10px">
+          <el-col v-show="activeIndex == '2'" :span="24" style="padding:10px">
             <el-form-item label="策略名称" prop="name">
               <el-input v-model.trim="ruleForm.name" placeholder="请输入策略名称" :disabled="disable" />
             </el-form-item>
@@ -99,7 +92,7 @@
               </el-radio-group>
             </el-form-item>
             <el-form-item v-show="once" label="生效时段" prop="timeDescription">
-              <el-date-picker v-model="ruleForm.timeDescription" value-format="yyyy-MM-dd HH:mm:ss" type="datetimerange" :disabled="disable" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" />
+              <el-date-picker size="small" style="width:100%" v-model="ruleForm.timeDescription" value-format="yyyy-MM-dd HH:mm:ss" type="datetimerange" :disabled="disable" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" />
             </el-form-item>
             <!--        day,week,month,year-->
             <el-form-item v-show="twice" label="" prop="interval_type">
@@ -197,7 +190,7 @@
             </el-form-item>
           </el-col>
           <!-- 规则 -->
-          <el-col v-show="activeIndex == '3'" :span="21" style="padding: 10px;overflow: auto;height: 530px;">
+          <el-col v-show="activeIndex == '3'" :span="24" style="padding: 10px;overflow: auto;height: 530px;">
             <el-form-item label="策略类型" prop="rule_type">
               <el-select v-model="ruleForm.rule_type" placeholder="请选择用途" style="width:30%" :disabled="disable" @change="changeRuleType">
                 <el-option label="屏蔽" value="F" />
@@ -498,8 +491,8 @@
                   </el-table-column>
                   <el-table-column label="操作" prop="name" class-name="small-padding fixed-width">
                     <template slot-scope="scope">
-                      <el-button v-if="ruleForm.expression.length != 1" size="mini" type="text" :disabled="disable" @click="fieldExpreDelete(scope)">删除</el-button>
-                      <el-button v-if="scope.$index + 1 == ruleForm.expression.length || scope.$index == ruleForm.expression.length" size="mini" type="text" :disabled="disable" @click="addExpreClick()">新增</el-button>
+                      <el-button  class="el-icon-delete"  v-if="ruleForm.expression.length != 1" size="mini" type="text" :disabled="disable" @click="fieldExpreDelete(scope)">删除</el-button>
+                      <el-button class="el-icon-circle-plus-outline" v-if="scope.$index + 1 == ruleForm.expression.length || scope.$index == ruleForm.expression.length" size="mini" type="text" :disabled="disable" @click="addExpreClick()">新增</el-button>
                     </template>
                   </el-table-column>
                 </el-table>

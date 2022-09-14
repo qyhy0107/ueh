@@ -49,7 +49,9 @@
     <div class="showTableBox" :style="{height:OperateBoxHeight+'px'}">
       <el-table v-if="list.length" v-loading="loading" :data="list" :height="'90%'" @selection-change="handleSelectionChange">
         <!-- <el-table-column type="selection" width="55" align="center" /> -->
-
+        <template v-if="!loading" slot="empty" style="height:100%">
+          <Deficiency width="30%" height="auto" />
+        </template>
         <el-table-column label="操作人员" align="left" header-align="left" prop="operName" />
         <el-table-column label="访问模块" align="left" prop="title" />
         <el-table-column label="访问类型" align="left" prop="businessType" :formatter="typeFormat" />
@@ -69,10 +71,6 @@
           </template>
         </el-table-column>
       </el-table>
-      <div v-else class="noneDateBox">
-        <img src="../../../assets/common/nonedata.png" width="25%">
-        <div>&nbsp;&nbsp;暂无数据~</div>
-      </div>
       <pagination v-show="total>0" :page-sizes="[10, 20, 50, 200]" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize" @pagination="getList" />
       <!-- <div style="height: 50px"></div> -->
     </div>
@@ -134,7 +132,10 @@ import {
 // import { getSysUserList } from '@/api/statisticalAnalysis/operLog'
 import moment from 'moment'
 
+import Deficiency from '@/components/Deficiency'
+
 export default {
+  components: { Deficiency },
   data() {
     return {
       // 页面高度

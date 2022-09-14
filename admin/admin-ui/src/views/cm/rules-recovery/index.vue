@@ -3,19 +3,23 @@
     <div ref="OperateBox" class="operateBox">
       <el-form :inline="true" :model="formInline" label-position="left" @submit.native.prevent>
         <el-form-item label="策略名称">
-          <el-input v-model.trim="formInline.name" clearable size="small" placeholder="请输入名称" @keyup.enter.native="onSearch" />
+          <el-input v-model.trim="formInline.name" clearable size="small" placeholder="请输入名称"
+            @keyup.enter.native="onSearch" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" size="mini" @click="onSearch">查询</el-button>
-          <el-button size="mini" @click="onRest">重置</el-button>
-          <el-button class="addButton" size="mini" @click="onAdd">新增</el-button>
+          <el-button class="blueButton" size="mini" @click="onSearch">查询</el-button>
+          <el-button class="grayButton" size="mini" @click="onRest">重置</el-button>
+          <el-button class="grayButton" size="mini" @click="onAdd">新增</el-button>
         </el-form-item>
       </el-form>
     </div>
     <div class="showTableBox" :style="{ height: OperateBoxHeight + 'px' }">
-      <el-table v-if="dataList.length" :data="dataList" border>
+      <el-table :data="dataList" :style="{ height: OperateBoxHeight-60 + 'px' }" empty-text=" " element-loading-text="拼命加载中..." >
         <!-- <el-table-column prop="id" label="id" v-if="show" width="160" /> -->
-        <el-table-column prop="name" label="策略名称" width="160" />
+        <template v-if="!loading" slot="empty" style="height:100%">
+          <Deficiency width="30%" height="auto" />
+        </template>
+        <el-table-column prop="name" label="策略名称" width="170" />
         <!-- <el-table-column prop="rule_type" label="策略类型" :formatter="getRuleType" width="160" align="center" /> -->
         <el-table-column prop="exec_type" label="时间规则" :formatter="getExecType" width="120" align="center" />
         <el-table-column prop="interval_type" label="重复类型" width="120" align="center" />
@@ -23,22 +27,14 @@
 
         <el-table-column prop="on_completion" label="过期保留" align="center" width="100">
           <template slot-scope="scope" width="100">
-            <span v-if="scope.row.on_completion == 'Y'">
-              <el-tag>保留</el-tag>
-            </span>
-            <span v-else>
-              <el-tag type="danger">不保留</el-tag>
-            </span>
+            <span v-if="scope.row.on_completion == 'Y'">保留</span>
+            <span v-else class="brownColor">不保留</span>
           </template>
         </el-table-column>
         <el-table-column prop="is_enable" label="启用" align="center" width="100">
           <template slot-scope="scope">
-            <span v-if="scope.row.is_enable == true">
-              <el-tag>启用</el-tag>
-            </span>
-            <span v-else>
-              <el-tag type="danger">不启用</el-tag>
-            </span>
+            <span v-if="scope.row.isEnable == false" class="brownColor">不启用</span>
+            <span v-else>启用</span>
           </template>
         </el-table-column>
         <el-table-column prop="remark" label="备注" width="200" />
@@ -47,7 +43,7 @@
             <el-button size="mini" type="text" @click="handleWatch(scope.row)">查看策略</el-button>
           </template>
         </el-table-column> -->
-        <el-table-column label="操作" align="center" width="200" class-name="small-padding fixed-width">
+        <el-table-column label="操作" align="center" width="240" class-name="small-padding fixed-width">
           <template slot-scope="scope">
             <el-button size="mini" type="text" icon="el-icon-view" @click="handleWatch(scope.row)">查看</el-button>
             <el-button size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)">修改</el-button>
@@ -55,25 +51,23 @@
           </template>
         </el-table-column>
       </el-table>
-      <Deficiency v-else width="25%" height="auto" />
-      <pagination v-show="totalCount > 0" :page-sizes="[10, 20, 50, 200]" :total="totalCount" :page.sync="queryParams.start" :limit.sync="queryParams.limit" @pagination="search()" />
+      <pagination v-show="totalCount > 0&&dataList.length" :page-sizes="[10, 20, 50, 200]" :total="totalCount"
+        :page.sync="queryParams.start" :limit.sync="queryParams.limit" @pagination="search()" />
     </div>
     <!-- 添加或修改菜单对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="1000px" class="menuDialog">
-      <el-row style="height:100%">
-        <el-col :span="4" style="height:100%">
-          <el-menu v-model="activeIndex" :default-active="activeIndex" class="el-menu-vertical-demo" @select="IsActive">
-            <el-menu-item index="2">
-              <span slot="title">基本信息</span>
-            </el-menu-item>
-            <el-menu-item index="3">
-              <span slot="title">规则</span>
-            </el-menu-item>
-          </el-menu>
-        </el-col>
+      <el-menu v-model="activeIndex" mode="horizontal" :default-active="activeIndex" @select="IsActive">
+        <el-menu-item index="2">
+          <span slot="title">基本信息</span>
+        </el-menu-item>
+        <el-menu-item index="3">
+          <span slot="title">规则</span>
+        </el-menu-item>
+      </el-menu>
+      <el-row style="height:95%">
         <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="100px" class="demo-ruleForm">
           <!-- 基本信息 -->
-          <el-col v-show="activeIndex == '2'" :span="20" style="padding:10px">
+          <el-col v-show="activeIndex == '2'" :span="24"  style="padding:10px">
             <el-form-item label="策略名称" prop="name">
               <el-input v-model.trim="ruleForm.name" placeholder="请输入策略名称" :disabled="disable" />
             </el-form-item>
@@ -84,7 +78,9 @@
               </el-radio-group>
             </el-form-item>
             <el-form-item v-show="once" label="生效时段" prop="timeDescription">
-              <el-date-picker v-model="ruleForm.timeDescription" value-format="yyyy-MM-dd HH:mm:ss" type="datetimerange" :disabled="disable" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" />
+              <el-date-picker size="small" v-model="ruleForm.timeDescription" style="width:100%" value-format="yyyy-MM-dd HH:mm:ss"
+                type="datetimerange" :disabled="disable" range-separator="至" start-placeholder="开始日期"
+                end-placeholder="结束日期" />
             </el-form-item>
             <!--        day,week,month,year-->
             <el-form-item v-show="twice" label="" prop="interval_type">
@@ -94,27 +90,33 @@
             </el-form-item>
             <!-- 选择日 -->
             <el-form-item v-show="day" label="" prop="executeDay">
-              <el-time-picker v-model="ruleForm.execute_at" class="date-box" format="HH:mm:ss" size="small" :disabled="disable" placeholder="开始时间" value-format="HH:mm:ss" />
-              <el-time-picker v-model="ruleForm.execute_util" class="date-box" size="small" placeholder="结束时间" format="HH:mm:ss" :disabled="disable" value-format="HH:mm:ss" />
+              <el-time-picker v-model="ruleForm.execute_at" class="date-box" format="HH:mm:ss" size="small"
+                :disabled="disable" placeholder="开始时间" value-format="HH:mm:ss" />
+              <el-time-picker v-model="ruleForm.execute_util" class="date-box" size="small" placeholder="结束时间"
+                format="HH:mm:ss" :disabled="disable" value-format="HH:mm:ss" />
             </el-form-item>
             <!-- 选择周 -->
             <el-form-item v-show="week" label="">
               <el-row style="height:40px">
                 <el-col :span="6">
-                  <el-select v-model="ruleForm.day_of_week_at" placeholder="请选择周" size="small" class="el-form-item__label" :disabled="disable">
+                  <el-select v-model="ruleForm.day_of_week_at" placeholder="请选择周" size="small"
+                    class="el-form-item__label" :disabled="disable">
                     <el-option v-for="item in weeks" :key="item.id" :label="item.week" :value="item.id" />
                   </el-select>
                 </el-col>
                 <el-col :span="6">
-                  <el-time-picker v-model="ruleForm.execute_at" class="date-box" size="small" format="HH:mm:ss" :disabled="disable" placeholder="开始时间" value-format="HH:mm:ss" />
+                  <el-time-picker v-model="ruleForm.execute_at" class="date-box" size="small" format="HH:mm:ss"
+                    :disabled="disable" placeholder="开始时间" value-format="HH:mm:ss" />
                 </el-col>
                 <el-col :span="6">
-                  <el-select v-model="ruleForm.day_of_week_util" placeholder="请选择周" :disabled="disable" size="small" class="el-form-item__label">
+                  <el-select v-model="ruleForm.day_of_week_util" placeholder="请选择周" :disabled="disable" size="small"
+                    class="el-form-item__label">
                     <el-option v-for="item in weeks" :key="item.id" :label="item.week" :value="item.id" />
                   </el-select>
                 </el-col>
                 <el-col :span="6">
-                  <el-time-picker v-model="ruleForm.execute_util" class="date-box" size="small" format="HH:mm:ss" :disabled="disable" placeholder="结束时间" value-format="HH:mm:ss" />
+                  <el-time-picker v-model="ruleForm.execute_util" class="date-box" size="small" format="HH:mm:ss"
+                    :disabled="disable" placeholder="结束时间" value-format="HH:mm:ss" />
                 </el-col>
               </el-row>
             </el-form-item>
@@ -122,20 +124,24 @@
             <el-form-item v-show="month" label="" prop="executeWeek">
               <el-row style="height:40px">
                 <el-col :span="6">
-                  <el-select v-model="ruleForm.day_start" placeholder="请选择天" size="small" class="el-form-item__label" :disabled="disable">
+                  <el-select v-model="ruleForm.day_start" placeholder="请选择天" size="small" class="el-form-item__label"
+                    :disabled="disable">
                     <el-option v-for="item in months" :key="item.id" :label="item.day" :value="item.id" />
                   </el-select>
                 </el-col>
                 <el-col :span="6">
-                  <el-time-picker v-model="ruleForm.execute_at" class="date-box" size="small" format="HH:mm:ss" placeholder="结束时间" value-format="HH:mm:ss" :disabled="disable" />
+                  <el-time-picker v-model="ruleForm.execute_at" class="date-box" size="small" format="HH:mm:ss"
+                    placeholder="结束时间" value-format="HH:mm:ss" :disabled="disable" />
                 </el-col>
                 <el-col :span="6">
-                  <el-select v-model="ruleForm.day_end" placeholder="请选择天" size="small" class="el-form-item__label" :disabled="disable">
+                  <el-select v-model="ruleForm.day_end" placeholder="请选择天" size="small" class="el-form-item__label"
+                    :disabled="disable">
                     <el-option v-for="item in months" :key="item.id" :label="item.day" :value="item.id" />
                   </el-select>
                 </el-col>
                 <el-col :span="6">
-                  <el-time-picker v-model="ruleForm.execute_util" class="date-box" size="small" placeholder="结束时间" format="HH:mm:ss" value-format="HH:mm:ss" :disabled="disable" />
+                  <el-time-picker v-model="ruleForm.execute_util" class="date-box" size="small" placeholder="结束时间"
+                    format="HH:mm:ss" value-format="HH:mm:ss" :disabled="disable" />
                 </el-col>
               </el-row>
             </el-form-item>
@@ -143,22 +149,28 @@
             <el-form-item v-show="year" label="" prop="executeWeek">
               <el-row style="height:40px">
                 <el-col>
-                  <el-select v-model="ruleForm.month_start" placeholder="请选择月" size="small" class="el-form-item__label" style="width:30%" :disabled="disable">
+                  <el-select v-model="ruleForm.month_start" placeholder="请选择月" size="small" class="el-form-item__label"
+                    style="width:30%" :disabled="disable">
                     <el-option v-for="item in years" :key="item.id" :label="item.month" :value="item.id" />
                   </el-select>
-                  <el-select v-model="ruleForm.day_start" placeholder="请选择天" size="small" class="el-form-item__label" style="width:30%" :disabled="disable">
+                  <el-select v-model="ruleForm.day_start" placeholder="请选择天" size="small" class="el-form-item__label"
+                    style="width:30%" :disabled="disable">
                     <el-option v-for="item in months" :key="item.id" :label="item.day" :value="item.id" />
                   </el-select>
-                  <el-time-picker v-model="ruleForm.execute_at" class="date-box" format="HH:mm:ss" placeholder="开始时间" size="small" value-format="HH:mm:ss" style="width:30%" :disabled="disable" />
+                  <el-time-picker v-model="ruleForm.execute_at" class="date-box" format="HH:mm:ss" placeholder="开始时间"
+                    size="small" value-format="HH:mm:ss" style="width:30%" :disabled="disable" />
                 </el-col>
                 <el-col>
-                  <el-select v-model="ruleForm.month_end" placeholder="请选择月" size="small" class="el-form-item__label" style="width:30%" :disabled="disable">
+                  <el-select v-model="ruleForm.month_end" placeholder="请选择月" size="small" class="el-form-item__label"
+                    style="width:30%" :disabled="disable">
                     <el-option v-for="item in years" :key="item.id" :label="item.month" :value="item.id" />
                   </el-select>
-                  <el-select v-model="ruleForm.day_end" placeholder="请选择天" size="small" class="el-form-item__label" style="width:30%" :disabled="disable">
+                  <el-select v-model="ruleForm.day_end" placeholder="请选择天" size="small" class="el-form-item__label"
+                    style="width:30%" :disabled="disable">
                     <el-option v-for="item in months" :key="item.id" :label="item.day" :value="item.id" />
                   </el-select>
-                  <el-time-picker v-model="ruleForm.execute_util" style="width:30%" class="date-box" size="small" placeholder="结束时间" format="HH:mm:ss" value-format="HH:mm:ss" :disabled="disable" />
+                  <el-time-picker v-model="ruleForm.execute_util" style="width:30%" class="date-box" size="small"
+                    placeholder="结束时间" format="HH:mm:ss" value-format="HH:mm:ss" :disabled="disable" />
                 </el-col>
               </el-row>
             </el-form-item>
@@ -182,25 +194,30 @@
             </el-form-item>
           </el-col>
           <!-- 规则 -->
-          <el-col v-show="activeIndex == '3'" :span="20" style="padding: 10px;overflow: auto;height:530px;">
+          <el-col v-show="activeIndex == '3'" :span="24"  style="padding: 10px;overflow: auto;height:530px;">
             <el-form-item label="策略类型" prop="rule_type">
-              <el-select v-model="ruleForm.rule_type" placeholder="请选择用途" style="width:30%" :disabled="disable" @change="changeRuleType">
+              <el-select v-model="ruleForm.rule_type" placeholder="请选择用途" style="width:30%" :disabled="disable"
+                @change="changeRuleType">
                 <el-option label="恢复" value="RE" />
               </el-select>
             </el-form-item>
             <el-form-item label="优先级" prop="display_order">
-              <el-input v-model.trim="ruleForm.displayOrder" clearable placeholder="数字越小优先级高" style="width:30%" :disabled="disable" />
+              <el-input v-model.trim="ruleForm.displayOrder" clearable placeholder="数字越小优先级高" style="width:30%"
+                :disabled="disable" />
             </el-form-item>
             <!-- 恢复策略 规则设置 start -->
             <div v-if="ruleForm.rule_type === 'RE'">
               <el-form-item label="事件源类型" prop="event_source_type">
-                <el-select v-model="ruleForm.event_source_type" :disabled="disable" placeholder="请选择事件源" style="width:50%" @change="getProbeSourceTypes()">
-                  <el-option v-for="item in eventSourceTypeSelect" :key="item.dictLabel" :label="item.dictLabel" :value="item.dictValue" />
+                <el-select v-model="ruleForm.event_source_type" :disabled="disable" placeholder="请选择事件源"
+                  style="width:50%" @change="getProbeSourceTypes()">
+                  <el-option v-for="item in eventSourceTypeSelect" :key="item.dictLabel" :label="item.dictLabel"
+                    :value="item.dictValue" />
                 </el-select>
               </el-form-item>
               <el-form-item label="事件源" prop="event_source">
                 <el-select v-model="ruleForm.event_source" :disabled="disable" placeholder="请选择事件源" style="width:50%">
-                  <el-option v-for="item in eventSources" :key="item.probe_key" :label="item.name" :value="item.probe_key" />
+                  <el-option v-for="item in eventSources" :key="item.probe_key" :label="item.name"
+                    :value="item.probe_key" />
                 </el-select>
               </el-form-item>
               <el-form-item label="运算公式" prop="formular">
@@ -210,15 +227,20 @@
                 <el-table :disabled="disable" :show-header="status" :data="ruleForm.expression">
                   <el-table-column label="值">
                     <template slot-scope="scope">
-                      <el-select v-model="scope.row.conditionColumn" placeholder="请选择条件字段" clearable size="small" :disabled="disable" @change="setFormular(scope.row.conditionColumn)">
-                        <el-option v-for="item in effectExper" :key="item.columnInDB" :label="item.columnName" :value="item.columnInDB" />
+                      <el-select style="width:100%" v-model="scope.row.conditionColumn" placeholder="请选择条件字段" clearable size="small"
+                        :disabled="disable" @change="setFormular(scope.row.conditionColumn)">
+                        <el-option v-for="item in effectExper" :key="item.columnInDB" :label="item.columnName"
+                          :value="item.columnInDB" />
                       </el-select>
                     </template>
                   </el-table-column>
                   <el-table-column label="操作" prop="name" class-name="small-padding fixed-width">
                     <template slot-scope="scope">
-                      <el-button v-if="ruleForm.expression.length != 1" size="mini" type="text" :disabled="disable" @click="fieldExpreDelete(scope)">删除</el-button>
-                      <el-button v-if="scope.$index + 1 == ruleForm.expression.length || scope.$index == ruleForm.expression.length" size="mini" type="text" :disabled="disable" @click="addExpreClick()">新增</el-button>
+                      <el-button v-if="ruleForm.expression.length != 1" size="mini" type="text" :disabled="disable"
+                      class="el-icon-delete" @click="fieldExpreDelete(scope)">删除</el-button>
+                      <el-button
+                        v-if="scope.$index + 1 == ruleForm.expression.length || scope.$index == ruleForm.expression.length"
+                        size="mini" type="text" :disabled="disable" class="el-icon-circle-plus-outline" @click="addExpreClick()">新增</el-button>
                     </template>
                   </el-table-column>
                 </el-table>
@@ -1199,20 +1221,25 @@ export default {
 </script>
 <style lang="scss" scoped>
 @import '../../../assets/styles/index.scss';
+
 .labelSP {
   width: 100%;
+
   /deep/.el-form-item__content {
     width: 80%;
   }
 }
+
 .dark,
 .light {
   .menuDialog /deep/.el-dialog__body {
     height: 600px !important;
     padding: 0 !important;
   }
+
   .el-menu {
     border-right: solid 1px rgba(66, 170, 211, 0.1) !important;
+
     .el-menu-item:hover,
     .el-menu-item:focus {
       // background:rgb(85, 136, 237)!important;
@@ -1220,6 +1247,7 @@ export default {
     }
   }
 }
+
 .radio-box {
   display: inline-block;
   position: relative;
@@ -1227,6 +1255,7 @@ export default {
   line-height: 25px;
   margin-right: 5px;
 }
+
 .radio {
   display: inline-block;
   width: 25px;
@@ -1237,6 +1266,7 @@ export default {
   background-repeat: no-repeat;
   background-position: 0 0;
 }
+
 .input-radio {
   display: inline-block;
   position: absolute;
@@ -1248,15 +1278,19 @@ export default {
   outline: none;
   -webkit-appearance: none;
 }
+
 .on {
   background-position: -25px 0;
 }
+
 .operateBox {
   padding: 15px;
 }
+
 .showTableBox {
   margin-top: 20px;
   padding: 0px;
+
   .titleBox {
     padding: 10px;
     font-size: 14px;
@@ -1270,18 +1304,21 @@ export default {
     padding: 7px 10px;
   }
 }
+
 .el-date-editor.el-input,
 .el-date-editor.el-input__inner {
   width: 170px;
   // height: 32px;
   // line-height: 32px;
 }
+
 /deep/.el-dialog__body {
   .el-table {
     border: 1px solid rgba(66, 170, 211, 0.2);
     border-bottom: 1px solid rgba(66, 170, 211, 0);
   }
 }
+
 // 特殊表单样式
 .rowStyleForm {
   border: 1px solid rgba(66, 170, 211, 0.2);
@@ -1291,6 +1328,7 @@ export default {
   //   margin-bottom: 0px;
   // }
 }
+
 .light .el-dialog__body .rowStyleForm .el-form-item {
   margin-bottom: 0px !important;
 }

@@ -1,17 +1,9 @@
 <template>
   <div id="tags-view-container" class="tags-view-container">
     <scroll-pane ref="scrollPane" class="tags-view-wrapper">
-      <router-link
-        v-for="tag in visitedViews"
-        ref="tag"
-        :key="tag.path"
-        :class="isActive(tag)?'active':''"
-        :to="{ path: tag.path, query: tag.query, fullPath: tag.fullPath }"
-        tag="span"
-        class="tags-view-item"
-        @click.middle.native="closeSelectedTag(tag)"
-        @contextmenu.prevent.native="openMenu(tag,$event)"
-      >
+      <router-link v-for="tag in visitedViews" ref="tag" :key="tag.path" :class="isActive(tag)?'active':''"
+        :to="{ path: tag.path, query: tag.query, fullPath: tag.fullPath }" tag="span" class="tags-view-item"
+        @click.middle.native="closeSelectedTag(tag)" @contextmenu.prevent.native="openMenu(tag,$event)">
         {{ tag.title }}
         <span v-if="!tag.meta.affix" class="el-icon-close" @click.prevent.stop="closeSelectedTag(tag)" />
       </router-link>
@@ -348,12 +340,14 @@ export default {
 
 <style lang="scss" scoped>
 @import '../../../assets/styles/index.scss';
+
 .tags-view-container {
   height: 34px;
   width: 100%;
-  background:$white;
-  border-bottom: 1px solid #d8dce5;
+  background: $white;
+  border-bottom: 1px solid rgba(74, 89, 110, 1);
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .12), 0 0 3px 0 rgba(0, 0, 0, .04);
+
   .tags-view-wrapper {
     .tags-view-item {
       display: inline-block;
@@ -361,36 +355,42 @@ export default {
       cursor: pointer;
       height: 26px;
       line-height: 26px;
-      border: 1px solid #d8dce5;
-      color: #495060;
-      background: $white;
+      border: 1px solid rgba(74, 89, 110, 1) !important;
+      color: rgba(109, 117, 129, 1) !important;
+      background: rgba(140, 148, 157, 0.1) !important;
       padding: 0 8px;
       font-size: 12px;
       margin-left: 5px;
       margin-top: 4px;
+
       &:first-of-type {
         margin-left: 15px;
       }
+
       &:last-of-type {
         margin-right: 15px;
       }
+
       &.active {
-        background-color: $main-blue;
-        color: $white;
-        border-color:$main-blue;
-        &::before {
-          content: '';
-          background: $white;
-          display: inline-block;
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          position: relative;
-          margin-right: 2px;
-        }
+        background: rgba(185, 197, 211, 0.30)!important;
+        border: 1px solid rgba(255, 255, 255, 1)!important;
+        font-weight: 600!important;
+        color: #fff!important;
+        // border-color:$main-blue;
+        // &::before {
+        //   content: '';
+        //   background: $white;
+        //   display: inline-block;
+        //   width: 8px;
+        //   height: 8px;
+        //   border-radius: 50%;
+        //   position: relative;
+        //   margin-right: 2px;
+        // }
       }
     }
   }
+
   .contextmenu {
     margin: 0;
     background: $white;
@@ -403,10 +403,12 @@ export default {
     font-weight: 400;
     color: #333;
     box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, .3);
+
     li {
       margin: 0;
       padding: 7px 16px;
       cursor: pointer;
+
       &:hover {
         background: #eee;
       }
@@ -417,6 +419,7 @@ export default {
 
 <style lang="scss">
 @import '../../../assets/styles/index.scss';
+
 //reset element css of el-icon-close
 .tags-view-wrapper {
   .tags-view-item {
@@ -428,11 +431,13 @@ export default {
       text-align: center;
       transition: all .3s cubic-bezier(.645, .045, .355, 1);
       transform-origin: 100% 50%;
+
       &:before {
         transform: scale(.6);
         display: inline-block;
         vertical-align: -3px;
       }
+
       &:hover {
         background-color: #b4bccc;
         color: $white;

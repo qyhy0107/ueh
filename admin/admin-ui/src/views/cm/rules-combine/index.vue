@@ -54,7 +54,6 @@
           </template>
         </el-table-column>
       </el-table>
-      <Deficiency v-else width="25%" height="auto" />
       <pagination v-show="totalCount>0" :page-sizes="[10, 20, 50, 200]" :total="totalCount" :page.sync="queryParams.start" :limit.sync="queryParams.limit" @pagination="search()" />
     </div>
     <!-- 添加或修改菜单对话框 -->

@@ -8,50 +8,59 @@
             <el-col :lg="24" :xl="24">
               <el-form ref="queryForm" :model="queryParams" :inline="true" label-position="left" @submit.native.prevent>
                 <el-form-item prop="condition">
-                  <el-input v-model.trim="queryParams.condition" placeholder="请输入查询条件" clearable size="small" @keyup.enter.native="handleQuery" />
+                  <el-input v-model.trim="queryParams.condition" placeholder="请输入查询条件" clearable size="small"
+                    @keyup.enter.native="handleQuery" />
                 </el-form-item>
                 <el-form-item label="启用" prop="isEnable">
-                  <el-select v-model="queryParams.isEnable" placeholder="请选择" clearable size="small" @change="handleQuery">
-                    <el-option v-for="dict in typeOptions" :key="dict.dictValue" :label="dict.dictLabel" :value="dict.dictValue" />
+                  <el-select v-model="queryParams.isEnable" placeholder="请选择" clearable size="small"
+                    @change="handleQuery">
+                    <el-option v-for="dict in typeOptions" :key="dict.dictValue" :label="dict.dictLabel"
+                      :value="dict.dictValue" />
                   </el-select>
                 </el-form-item>
                 <el-form-item>
-                  <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">查询</el-button>
-                  <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+                  <el-button class="blueButton" icon="el-icon-search" size="mini" @click="handleQuery">查询</el-button>
+                  <el-button class="grayButton" icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
                 </el-form-item>
                 <el-form-item>
-                  <el-button class="addButton" icon="el-icon-plus" size="mini" @click="handleAdd">新增</el-button>
+                  <el-button class="grayButton" icon="el-icon-plus" size="mini" @click="handleAdd">新增</el-button>
                 </el-form-item>
               </el-form>
             </el-col>
           </el-row>
         </div>
         <div class="showTableBox" :style="{ height: OperateBoxHeight + 'px' }">
-          <el-table v-if="userList.length" v-loading="loading" :data="userList" @selection-change="handleSelectionChange">
-            <el-table-column v-if="show" align="left" width="140" label="uid" prop="uid" :show-overflow-tooltip="true" />
-            <el-table-column label="被通知账号" prop="domainName" header-align="left" align="left" width="160" />
+          <el-table empty-text=" " element-loading-text="拼命加载中..." v-loading="loading"
+            :data="userList" @selection-change="handleSelectionChange" :style="{ height: OperateBoxHeight-60 + 'px' }">
+            <template v-if="!loading" slot="empty" style="height:100%">
+              <Deficiency width="30%" height="auto" />
+            </template>
+            <el-table-column v-if="show" align="left" width="140" label="uid" prop="uid"
+              :show-overflow-tooltip="true" />
+            <el-table-column label="被通知账号" :show-overflow-tooltip="true" prop="domainName" header-align="left"
+              align="left" width="160" />
             <el-table-column label="被通知人" prop="userName" header-align="left" align="left" width="120" />
             <el-table-column label="被通知组" align="left" header-align="left" prop="groupNames" width="320" />
             <el-table-column label="关联设备" align="left" header-align="left" prop="resourceNames" />
             <el-table-column label="启用" align="center" prop="isEnable" width="100">
               <template slot-scope="scope">
-                <el-tag v-if="scope.row.isEnable == 'N'" size="small" type="danger">不启用</el-tag>
-                <el-tag v-else size="small">启用</el-tag>
+                <!-- <el-tag v-if="scope.row.isEnable == 'N'" size="small" type="danger">不启用</el-tag>
+                <el-tag v-else size="small">启用</el-tag> -->
+                <span v-if="scope.row.isEnable == 'N'" class="brownColor">不启用</span>
+                <span v-else>启用</span>
               </template>
             </el-table-column>
             <el-table-column label="备注" align="left" header-align="left" prop="remark" width="140" />
             <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="140">
               <template slot-scope="scope">
                 <el-button size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)">修改</el-button>
-                <el-button v-if="scope.row.userId !== 1" size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)">删除</el-button>
+                <el-button v-if="scope.row.userId !== 1" size="mini" type="text" icon="el-icon-delete"
+                  @click="handleDelete(scope.row)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
-          <div v-else class="noneDateBox">
-            <img src="../../../../assets/common/nonedata.png" width="25%" />
-            <div>&nbsp;&nbsp;暂无数据~</div>
-          </div>
-          <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :page-sizes="[20, 50, 200]" :limit.sync="queryParams.pageSize" @pagination="getList" />
+          <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :page-sizes="[20, 50, 200]"
+            :limit.sync="queryParams.pageSize" @pagination="getList" />
         </div>
       </el-col>
     </el-row>
@@ -66,7 +75,7 @@
           <el-input v-model.trim="form.userName" placeholder="请输入姓名" />
         </el-form-item>
         <el-form-item label="被通知组" prop="groupNames">
-          <el-select v-model="form.groupIds" placeholder="请选择通知组" filterable multiple clearable>
+          <el-select v-model="form.groupIds" placeholder="请选择通知组" filterable multiple clearable style="width:100%">
             <el-option v-for="group in groupSelect" :key="group.id" :label="group.groupName" :value="group.id" />
           </el-select>
         </el-form-item>
@@ -80,7 +89,8 @@
             :props="{ expandTrigger: 'hover' }"
             @change="handleChange"
           /> -->
-          <el-cascader v-model="form.resourceIds" placeholder="请选择关注设备" :show-all-levels="false" :options="options" style="width:100%" :props="props" filterable>
+          <el-cascader v-model="form.resourceIds" placeholder="请选择关注设备" :show-all-levels="false" :options="options"
+            style="width:100%" :props="props" filterable>
             <!-- <el-cascader v-model="form.resourceIds" placeholder="请选择关注设备" :show-all-levels="false" :options="options" style="width:100%" :props="{ multiple: true, emitPath: false, lazy: true }" filterable> -->
             <!-- <template slot-scope="{ node, data }">
               <span>{{ data.labelText }}</span>
@@ -110,8 +120,10 @@
 import { addHandleUser, addHandleUserAndGroup, addHandleUserAndResource, deleteUser, deleteUserGroup, deleteUserResource, findHandleUserByDomainName, findHandleUserById, findMonitoryUserList, findResourceSelect, findResourceparentIdSelect, getUserAndGroup, getUserAndResource, getUserAndResourceClass, updateHandleUser } from '@/api/cm/handle/user/user'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { findGroupSelect } from '@/api/cm/handle/group/group'
+import Deficiency from '@/components/Deficiency'
 
 export default {
+  components: { Deficiency },
   data() {
     // const that = this
     return {
@@ -223,7 +235,7 @@ export default {
   methods: {
     // 获取页面高度
     getOperateBoxHeight() {
-      this.$nextTick(function() {
+      this.$nextTick(function () {
         this.OperateBoxHeight = document.getElementsByClassName('app-container')[0].offsetHeight - document.getElementsByClassName('operateBox')[0].offsetHeight - 10
       })
     },
@@ -365,7 +377,7 @@ export default {
       })
     },
     /** 提交按钮 */
-    submitForm: function() {
+    submitForm: function () {
       this.$refs['form'].validate((valid) => {
         if (valid) {
           const projectId = localStorage.getItem('project_id')
@@ -470,7 +482,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       })
-        .then(function() {
+        .then(function () {
           deleteUser({ id: uid, projectId })
         })
         .then(() => {
@@ -483,56 +495,64 @@ export default {
           this.getList()
           this.msgSuccess('删除成功')
         })
-        .catch(function() {})
+        .catch(function () { })
     }
   }
 }
 </script>
 <style lang="scss">
 .dark {
-  .el-cascader-node {
-    color: #fff;
-  }
-  .el-cascader__search-input {
-    background: transparent;
-    font-weight: 500;
-  }
-  .el-cascader-node:not(.is-disabled):hover,
-  .el-cascader-node:not(.is-disabled):focus {
-    background: rgba(39, 102, 197, 0.2);
-    color: #fff;
-  }
-  .el-cascader__tags .el-tag .el-icon-close {
-    flex: none;
-    background-color: rgba(192, 196, 204, 0%);
-    color: #fff;
-  }
-  .el-cascader__tags .el-tag > span {
-    color: #fff;
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .el-cascader__tags .el-tag {
-    background-color: #4c608a;
-    // border-color: #1890ff;
-    // color: #1890ff;
-  }
-  .el-cascader__search-input {
-    color: #ffffff;
-    background: #474f5f;
-  }
-  .el-cascader__suggestion-list {
-    max-height: 204px;
-    margin: 0;
-    padding: 6px 0;
-    font-size: 14px;
-    color: #e3e6eb;
-    text-align: center;
-  }
-  .el-cascader__suggestion-item:hover,
-  .el-cascader__suggestion-item:focus {
-    background: #4c608a;
-  }
+  // .el-cascader-node {
+  //   color: #fff;
+  // }
+
+  // .el-cascader__search-input {
+  //   background: transparent;
+  //   font-weight: 500;
+  // }
+
+  // .el-cascader-node:not(.is-disabled):hover,
+  // .el-cascader-node:not(.is-disabled):focus {
+  //   background: rgba(39, 102, 197, 0.2);
+  //   color: #fff;
+  // }
+
+  // .el-cascader__tags .el-tag .el-icon-close {
+  //   flex: none;
+  //   background-color: rgba(192, 196, 204, 0%);
+  //   color: #fff;
+  // }
+
+  // .el-cascader__tags .el-tag>span {
+  //   color: #fff;
+  //   flex: 1;
+  //   overflow: hidden;
+  //   text-overflow: ellipsis;
+  // }
+
+  // .el-cascader__tags .el-tag {
+  //   background-color: #4c608a;
+  //   // border-color: #1890ff;
+  //   // color: #1890ff;
+  // }
+
+  // .el-cascader__search-input {
+  //   color: #ffffff;
+  //   background: transparent;
+  // }
+
+  // .el-cascader__suggestion-list {
+  //   max-height: 204px;
+  //   margin: 0;
+  //   padding: 6px 0;
+  //   font-size: 14px;
+  //   color: #e3e6eb;
+  //   text-align: center;
+  // }
+
+  // .el-cascader__suggestion-item:hover,
+  // .el-cascader__suggestion-item:focus {
+  //   background: #4c608a;
+  // }
 }
 </style>

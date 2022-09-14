@@ -1,11 +1,11 @@
 <template>
   <div class="app-container">
-    <div ref="OperateBox" class="operateBox" style="position: relative;height:0;padding:0" />
+    <!-- <div ref="OperateBox" class="operateBox" style="position: relative;height:0;padding:0" /> -->
     <div class="showTableBox" :style="{ height: OperateBoxHeight + 'px' }">
       <el-tabs v-model="active.tab" type="border-card" :style="{ height: OperateBoxHeight + 'px' }">
         <el-tab-pane label="24小时" name="first" :style="{ height: OperateBoxHeight + 'px' }">
           <template v-if="active.tab === 'first'">
-            <el-form :inline="true" label-position="left" style="margin-top:10px;margin-left:10px">
+            <el-form :inline="true" label-position="left" style="margin-top:5px;margin-left:10px" class="realTime">
               <el-form-item label="恢复">
                 <el-select v-model="easySearch.RecoveredStatus" size="small" clearable placeholder="请选择" style="width:100px" @change="onSearch">
                   <el-option value="2" label="已恢复" />
@@ -58,22 +58,22 @@
                 <el-input v-model="easySearch.Summary" style="width:250px" size="small" clearable placeholder="请输入描述" @keyup.enter.native="onSearch" />
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" size="mini" @click="onSearch">查询</el-button>
+                <el-button class="blueButton" size="mini" @click="onSearch">查询</el-button>
                 <el-button class="grayButton" size="mini" @click="resetCondition1">重置</el-button>
                 <el-button class="grayButton" size="mini" @click="resetCondition2">清空条件</el-button>
-                <el-button class="addButton" size="mini" :disabled="!idSelections.length" @click="handleBatchAcknoledge">批量确认</el-button>
-                <el-button class="addButton" size="mini" :disabled="!idSelections.length" @click="handleBatchRecoveredStatus">批量恢复</el-button>
-                <el-button class="addButton" size="mini" @click="exportSelected">导出</el-button>
+                <el-button class="grayButton" size="mini" :disabled="!idSelections.length" @click="handleBatchAcknoledge">批量确认</el-button>
+                <el-button class="grayButton" size="mini" :disabled="!idSelections.length" @click="handleBatchRecoveredStatus">批量恢复</el-button>
+                <el-button class="grayButton" size="mini" @click="exportSelected">导出</el-button>
               </el-form-item>
             </el-form>
-            <el-table v-loading="loading" :height="'70%'" :data="dataList" border @sort-change="getOrder" @selection-change="handleSelectionChange" @row-dblclick="openDialog">
+            <el-table v-loading="loading" :height="'75%'" :data="dataList"  @sort-change="getOrder" @selection-change="handleSelectionChange" @row-dblclick="openDialog">
               <template v-if="!loading" slot="empty" style="height:100%">
-                <Deficiency width="45%" height="auto" />
+                <Deficiency width="30%" height="auto" />
               </template>
               <el-table-column type="selection" min-width="2%" />
               <el-table-column sortable="custom" align="left" prop="Severity" label="级别" min-width="5%" show-overflow-tooltip :formatter="tableColumnsFormat">
                 <template slot-scope="scope" width="100">
-                  <span v-for="item in SeverityArr" :key="item.mappingValue + '级别1'" :style="{ color: scope.row.Severity == '0' ? '#0587ff' : scope.row.Severity == '1' || scope.row.Severity == '2' ? '#67c23a' : scope.row.Severity == '3' || scope.row.Severity == '4' ? '#e6a23c' : '#f44336' }">
+                  <span v-for="item in SeverityArr" :key="item.mappingValue + '级别1'" :style="{ color: scope.row.Severity == '0' ?'#C1C1C1' : scope.row.Severity == '1' ?'#00EC86': scope.row.Severity == '2' ? '#0098FF' : scope.row.Severity == '3' ?'#FDCC00': scope.row.Severity == '4' ? '#FF9000' : '#FF5161'  }">
                     <span v-if="item.mappingValue === scope.row.Severity">{{ item.name }}</span>
                   </span>
                 </template>
@@ -84,7 +84,8 @@
                 <template slot-scope="scope">
                   <el-tooltip class="item" effect="dark" content="点击跳转到设备详情页" placement="top">
                     <span class="tagLink" @click="turnPage(scope.row)">
-                      <i class="el-icon-paperclip" />
+                      <!-- <i class="el-icon-paperclip" /> -->
+                      <svg-icon icon-class="icon_biaoqian"/>
                       {{ scope.row.Node }}
                     </span>
                   </el-tooltip>
@@ -106,31 +107,43 @@
               <el-table-column sortable="custom" prop="Summary" label="描述" min-width="15%" show-overflow-tooltip />
               <el-table-column sortable="custom" prop="EventSeverityType" label="事件类型" align="left" min-width="7%">
                 <template slot-scope="scope">
-                  <span v-if="scope.row.EventSeverityType == 1">
-                    <el-tag type="danger">告警事件</el-tag>
+                  <span v-if="scope.row.EventSeverityType == 1" class="brownColor">
+                    <!-- <el-tag type="danger"> -->
+                      告警事件
+                    <!-- </el-tag> -->
                   </span>
                   <span v-if="scope.row.EventSeverityType == 2">
-                    <el-tag type="success">恢复事件</el-tag>
+                    <!-- <el-tag type="success"> -->
+                      恢复事件
+                    <!-- </el-tag> -->
                   </span>
                 </template>
               </el-table-column>
               <el-table-column sortable="custom" prop="RecoveredStatus" label="恢复" align="left" min-width="6%">
                 <template slot-scope="scope">
-                  <span v-if="scope.row.RecoveredStatus == 1">
-                    <el-tag type="danger">未恢复</el-tag>
+                  <span v-if="scope.row.RecoveredStatus == 1" class="brownColor">
+                    <!-- <el-tag type="danger"> -->
+                      未恢复
+                    <!-- </el-tag> -->
                   </span>
                   <span v-if="scope.row.RecoveredStatus == 2">
-                    <el-tag type="success">已恢复</el-tag>
+                    <!-- <el-tag type="success"> -->
+                      已恢复
+                    <!-- </el-tag> -->
                   </span>
                 </template>
               </el-table-column>
               <el-table-column sortable="custom" prop="Acknowledged" label="确认" align="left" min-width="6%">
                 <template slot-scope="scope">
-                  <span v-if="scope.row.Acknowledged == 0">
-                    <el-tag type="danger">未确认</el-tag>
+                  <span v-if="scope.row.Acknowledged == 0" class="brownColor">
+                    <!-- <el-tag type="danger"> -->
+                      未确认
+                    <!-- </el-tag> -->
                   </span>
                   <span v-else>
-                    <el-tag type="success">已确认</el-tag>
+                    <!-- <el-tag type="success"> -->
+                      已确认
+                    <!-- </el-tag> -->
                   </span>
                 </template>
               </el-table-column>
@@ -150,7 +163,7 @@
         </el-tab-pane>
         <el-tab-pane label="24小时前" name="second" :style="{ height: OperateBoxHeight + 'px' }">
           <template v-if="active.tab === 'second'">
-            <el-form :inline="true" label-position="left" style="margin-top:10px;margin-left:10px">
+            <el-form :inline="true" label-position="left" style="margin-top:5px;margin-left:10px"  class="realTime">
               <el-form-item label="确认">
                 <el-select v-model="easySearch.Acknowledged" size="small" clearable placeholder="请选择" style="width:100px" @change="onSearch">
                   <el-option value="1" label="已确认" />
@@ -201,21 +214,21 @@
                 <el-input v-model="easySearch.Summary" style="width:250px" size="small" clearable placeholder="请输入描述" @keyup.enter.native="onSearch" />
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" size="mini" @click="onSearch">查询</el-button>
+                <el-button class="blueButton" size="mini" @click="onSearch">查询</el-button>
                 <el-button class="grayButton" size="mini" @click="resetCondition">重置</el-button>
-                <el-button class="addButton" size="mini" :disabled="!idSelections.length" @click="handleBatchAcknoledge">批量确认</el-button>
-                <el-button class="addButton" size="mini" :disabled="!idSelections.length" @click="handleBatchRecoveredStatus">批量恢复</el-button>
-                <el-button class="addButton" size="mini" @click="exportSelected">导出</el-button>
+                <el-button class="grayButton" size="mini" :disabled="!idSelections.length" @click="handleBatchAcknoledge">批量确认</el-button>
+                <el-button class="grayButton" size="mini" :disabled="!idSelections.length" @click="handleBatchRecoveredStatus">批量恢复</el-button>
+                <el-button class="grayButton" size="mini" @click="exportSelected">导出</el-button>
               </el-form-item>
             </el-form>
-            <el-table v-loading="loading" :height="'70%'" :data="dataList" border @sort-change="getOrder" @selection-change="handleSelectionChange" @row-dblclick="openDialog">
+            <el-table v-loading="loading" :height="'75%'" :data="dataList"  @sort-change="getOrder" @selection-change="handleSelectionChange" @row-dblclick="openDialog">
               <template v-if="!loading" slot="empty" style="height:100%">
-                <Deficiency width="45%" height="auto" />
+                <Deficiency width="30%" height="auto" />
               </template>
               <el-table-column type="selection" min-width="2%" />
               <el-table-column sortable="custom" prop="Severity" label="级别" align="left" show-overflow-tooltip min-width="5%" :formatter="tableColumnsFormat">
                 <template slot-scope="scope" width="100">
-                  <span v-for="item in SeverityArr" :key="item.mappingValue + '级别3'" :style="{ color: scope.row.Severity == '0' ? '#0587ff' : scope.row.Severity == '1' || scope.row.Severity == '2' ? '#67c23a' : scope.row.Severity == '3' || scope.row.Severity == '4' ? '#e6a23c' : '#f44336' }">
+                  <span v-for="item in SeverityArr" :key="item.mappingValue + '级别3'" :style="{ color: scope.row.Severity == '0' ?'#C1C1C1' : scope.row.Severity == '1' ?'#00EC86': scope.row.Severity == '2' ? '#0098FF' : scope.row.Severity == '3' ?'#FDCC00': scope.row.Severity == '4' ? '#FF9000' : '#FF5161'  }">
                     <span v-if="item.mappingValue === scope.row.Severity">{{ item.name }}</span>
                   </span>
                 </template>
@@ -225,7 +238,8 @@
                 <template slot-scope="scope">
                   <el-tooltip class="item" effect="dark" content="点击跳转到设备详情页" placement="top">
                     <span class="tagLink" @click="turnPage(scope.row)">
-                      <i class="el-icon-paperclip" />
+                      <!-- <i class="el-icon-paperclip" /> -->
+                      <svg-icon icon-class="icon_biaoqian"/>
                       {{ scope.row.Node }}
                     </span>
                   </el-tooltip>
@@ -247,31 +261,43 @@
               <el-table-column sortable="custom" prop="Summary" label="描述" min-width="15%" show-overflow-tooltip />
               <el-table-column sortable="custom" prop="EventSeverityType" label="事件类型" align="left" min-width="7%">
                 <template slot-scope="scope">
-                  <span v-if="scope.row.EventSeverityType == 1">
-                    <el-tag type="danger">告警事件</el-tag>
+                  <span v-if="scope.row.EventSeverityType == 1" class="brownColor">
+                    <!-- <el-tag type="danger"> -->
+                      告警事件
+                    <!-- </el-tag> -->
                   </span>
                   <span v-if="scope.row.EventSeverityType == 2">
-                    <el-tag type="success">恢复事件</el-tag>
+                    <!-- <el-tag type="success"> -->
+                      恢复事件
+                    <!-- </el-tag> -->
                   </span>
                 </template>
               </el-table-column>
               <el-table-column sortable="custom" prop="RecoveredStatus" label="恢复" align="left" min-width="6%">
                 <template slot-scope="scope">
-                  <span v-if="scope.row.RecoveredStatus == 1">
-                    <el-tag type="danger">未恢复</el-tag>
+                  <span v-if="scope.row.RecoveredStatus == 1" class="brownColor">
+                    <!-- <el-tag type="danger"> -->
+                      未恢复
+                    <!-- </el-tag> -->
                   </span>
                   <span v-if="scope.row.RecoveredStatus == 2">
-                    <el-tag type="success">已恢复</el-tag>
+                    <!-- <el-tag type="success"> -->
+                      已恢复
+                    <!-- </el-tag> -->
                   </span>
                 </template>
               </el-table-column>
               <el-table-column sortable="custom" prop="Acknowledged" label="确认" align="left" min-width="6%">
                 <template slot-scope="scope">
-                  <span v-if="scope.row.Acknowledged == 0">
-                    <el-tag type="danger">未确认</el-tag>
+                  <span v-if="scope.row.Acknowledged == 0" class="brownColor">
+                    <!-- <el-tag type="danger"> -->
+                      未确认
+                    <!-- </el-tag> -->
                   </span>
                   <span v-else>
-                    <el-tag type="success">已确认</el-tag>
+                    <!-- <el-tag type="success"> -->
+                      已确认
+                    <!-- </el-tag> -->
                   </span>
                 </template>
               </el-table-column>
@@ -418,7 +444,9 @@
               </div>
               <div v-if="labelPosition === 'right' && confirmObj.url">
                 <span>工单链接</span>：<span style="color: #1890ff;cursor: pointer;">
-                  <i class="el-icon-paperclip" /><span @click="openWindows(confirmObj.url)">{{ confirmObj.url || '-' }}</span></span
+                  <!-- <i class="el-icon-paperclip" /> -->
+                  <svg-icon icon-class="icon_biaoqian"/>
+                  <span @click="openWindows(confirmObj.url)">{{ confirmObj.url || '-' }}</span></span
                 >
               </div>
               <div>
@@ -430,7 +458,7 @@
               <el-radio-button label="right" size="mini">工单信息</el-radio-button>
             </el-radio-group>
             <div v-if="labelPosition === 'left'" style="padding-top:10px;height:37vh;overflow:auto;">
-              <el-table :data="tableData" border :height="310" style="width: 100%;">
+              <el-table :data="tableData"  :height="310" style="width: 100%;">
                 <template v-if="!loading" slot="empty" style="height:100%">
                   <Deficiency style="padding-top:240px" height="100px" width="auto" />
                 </template>
@@ -595,7 +623,7 @@
               <el-input v-model="formData.person" type="textarea" :readonly="formTitle !== '确认'" clearable :placeholder="formTitle === '确认' ? '请输入通知对象' : '暂无数据'" style="vertical-align: top;" />
               <div v-if="formTitle === '确认'" style="display:inline-block;width:56%;font-size: 10px;line-height: initial;padding-left:10px;vertical-align: top;">
                 <!-- <span style="vertical-align: top;">提示：</span> -->
-                <div v-if="formTitle === '确认'" style="display:inline-block;width:100%">
+                <div v-if="formTitle === '确认'" style="display:inline-block;width:100%;color: #C9C9C9;">
                   提示：<br />
                   1.通知对象不填写时，符合规则的事件将通过事件分类发送对应角色的对象<br />
                   2.点击右侧填充按钮，将填充事件分类发送对应角色的对象<br />
@@ -603,7 +631,7 @@
                 </div>
               </div>
               <div v-if="formTitle === '确认'" style="display:inline-block;float: right;margin-top:10px">
-                <el-button size="mini" round @click="getPerson">填充</el-button>
+                <el-button class="grayButton" size="mini" round @click="getPerson">填充</el-button>
               </div>
             </el-form-item>
             <el-form-item label="备注" prop="remark">
@@ -613,7 +641,7 @@
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <div v-if="formTitle === '确认'" style="font-size: 10px;line-height: initial;padding:5px;padding-top:5px;vertical-align: top;">说明：确认操作为对事件确认字段状态的修改</div>
+        <div v-if="formTitle === '确认'" style="font-size: 10px;line-height: initial;padding:5px;padding-top:5px;vertical-align: top;color: #C9C9C9;">说明：确认操作为对事件确认字段状态的修改</div>
         <el-button class="cancel_button" @click="resetForm()">取 消</el-button>
         <el-button v-if="formTitle === '确认'" type="primary" class="confirm_button" @click="submitForm()">确 定</el-button>
       </div>
@@ -637,7 +665,7 @@
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <div style="font-size: 10px;line-height: initial;padding:5px;padding-top:5px;vertical-align: top;">说明：确认操作为对事件确认字段状态的修改</div>
+        <div style="font-size: 10px;line-height: initial;padding:5px;padding-top:5px;vertical-align: top;color: #C9C9C9;">说明：确认操作为对事件确认字段状态的修改</div>
         <el-button class="cancel_button" @click="resetBatchForm()">取 消</el-button>
         <el-button type="primary" class="confirm_button" @click="submitBatchForm()">确 定</el-button>
       </div>
@@ -1609,7 +1637,7 @@ export default {
     // 获取页面高度
     getOperateBoxHeight() {
       this.$nextTick(function() {
-        this.OperateBoxHeight = document.getElementsByClassName('app-container')[0].offsetHeight - document.getElementsByClassName('operateBox')[0].offsetHeight - 10
+        this.OperateBoxHeight = document.getElementsByClassName('app-container')[0].offsetHeight  - 10
       })
     },
     // 查询方法

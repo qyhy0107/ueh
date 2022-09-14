@@ -3,44 +3,41 @@
     <div ref="OperateBox" class="operateBox">
       <el-form :inline="true" :model="formInline" label-position="left" @submit.native.prevent>
         <el-form-item label="策略名称">
-          <el-input v-model.trim="formInline.name" clearable size="small" placeholder="请输入名称" @keyup.enter.native="onSearch" />
+          <el-input v-model.trim="formInline.name" clearable size="small" placeholder="请输入名称"
+            @keyup.enter.native="onSearch" />
         </el-form-item>
         <el-form-item>
           <!-- <el-button type="primary" size="mini" @click="onSearch">查询</el-button>
           <el-button class="addButton" size="mini" @click="onAdd">新增</el-button>
           <el-button size="mini" @click="onRest">重置</el-button> -->
-          <el-button type="primary" size="mini" @click="onSearch">查询</el-button>
-          <el-button size="mini" @click="onRest">重置</el-button>
-          <el-button class="addButton" size="mini" @click="onAdd">新增</el-button>
+          <el-button class="blueButton" size="mini" @click="onSearch">查询</el-button>
+          <el-button class="grayButton" size="mini" @click="onRest">重置</el-button>
+          <el-button class="grayButton" size="mini" @click="onAdd">新增</el-button>
         </el-form-item>
       </el-form>
     </div>
     <div class="showTableBox" :style="{ height: OperateBoxHeight + 'px' }">
-      <el-table v-if="dataList.length" :data="dataList" border>
+      <el-table :data="dataList" :style="{ height: OperateBoxHeight-60 + 'px' }" empty-text=" " element-loading-text="拼命加载中..." >
         <!-- <el-table-column prop="id" label="id" v-if="show" width="160" /> -->
-        <el-table-column prop="name" label="策略名称" width="160" />
+        <template v-if="!loading" slot="empty" style="height:100%">
+          <Deficiency width="30%" height="auto" />
+        </template>
+        <!-- <el-table-column prop="id" label="id" v-if="show" width="160" /> -->
+        <el-table-column prop="name" label="策略名称" width="240" />
         <!-- <el-table-column prop="rule_type" label="策略类型" :formatter="getRuleType" width="160" align="center" /> -->
         <el-table-column prop="exec_type" label="时间规则" :formatter="getExecType" width="120" align="center" />
         <el-table-column prop="interval_type" label="重复类型" width="120" align="center" />
         <el-table-column prop="timeDescription" label="时间描述" show-overflow-tooltip :formatter="getTimeDescription" />
         <el-table-column prop="on_completion" label="过期保留" align="center" width="100">
           <template slot-scope="scope" width="100">
-            <span v-if="scope.row.on_completion == 'Y'">
-              <el-tag>保留</el-tag>
-            </span>
-            <span v-else>
-              <el-tag type="danger">不保留</el-tag>
-            </span>
+            <span v-if="scope.row.on_completion == 'Y'">保留</span>
+            <span v-else class="brownColor">不保留</span>
           </template>
         </el-table-column>
         <el-table-column prop="is_enable" label="启用" align="center" width="100">
           <template slot-scope="scope">
-            <span v-if="scope.row.is_enable == true">
-              <el-tag>启用</el-tag>
-            </span>
-            <span v-else>
-              <el-tag type="danger">不启用</el-tag>
-            </span>
+            <span v-if="scope.row.isEnable == false" class="brownColor">不启用</span>
+            <span v-else>启用</span>
           </template>
         </el-table-column>
 
@@ -50,7 +47,7 @@
             <el-button size="mini" type="text" @click="handleWatch(scope.row)">查看策略</el-button>
           </template>
         </el-table-column> -->
-        <el-table-column label="操作" align="center" width="200" class-name="small-padding fixed-width">
+        <el-table-column label="操作" align="center" width="240" class-name="small-padding fixed-width">
           <template slot-scope="scope">
             <el-button size="mini" type="text" icon="el-icon-view" @click="handleWatch(scope.row)">查看</el-button>
             <el-button size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)">修改</el-button>
@@ -58,25 +55,23 @@
           </template>
         </el-table-column>
       </el-table>
-      <Deficiency v-else width="25%" height="auto" />
-      <pagination v-show="totalCount > 0" :page-sizes="[10, 20, 50, 200]" :total="totalCount" :page.sync="queryParams.start" :limit.sync="queryParams.limit" @pagination="search()" />
+      <pagination v-show="totalCount > 0&&dataList.length" :page-sizes="[10, 20, 50, 200]" :total="totalCount"
+        :page.sync="queryParams.start" :limit.sync="queryParams.limit" @pagination="search()" />
     </div>
     <!-- 添加或修改菜单对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="1000px" class="menuDialog">
-      <el-row style="height:100%">
-        <el-col :span="3" style="height:100%">
-          <el-menu v-model="activeIndex" :default-active="activeIndex" class="el-menu-vertical-demo" @select="IsActive">
-            <el-menu-item index="2">
-              <span slot="title">基本信息</span>
-            </el-menu-item>
-            <el-menu-item index="3">
-              <span slot="title">规则</span>
-            </el-menu-item>
-          </el-menu>
-        </el-col>
+      <el-menu v-model="activeIndex" mode="horizontal" :default-active="activeIndex" @select="IsActive">
+        <el-menu-item index="2">
+          <span slot="title">基本信息</span>
+        </el-menu-item>
+        <el-menu-item index="3">
+          <span slot="title">规则</span>
+        </el-menu-item>
+      </el-menu>
+      <el-row style="height:95%">
         <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="100px" class="demo-ruleForm">
           <!-- 基本信息 -->
-          <el-col v-show="activeIndex == '2'" :span="21" style="padding:10px">
+          <el-col v-show="activeIndex == '2'" :span="24" style="padding:10px">
             <el-form-item label="策略名称" prop="name">
               <el-input v-model.trim="ruleForm.name" placeholder="请输入策略名称" :disabled="disable" />
             </el-form-item>
@@ -87,7 +82,9 @@
               </el-radio-group>
             </el-form-item>
             <el-form-item v-show="once" label="通知时段" prop="timeDescription">
-              <el-date-picker v-model="ruleForm.timeDescription" value-format="yyyy-MM-dd HH:mm:ss" type="datetimerange" :disabled="disable" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" />
+              <el-date-picker v-model="ruleForm.timeDescription" value-format="yyyy-MM-dd HH:mm:ss" type="datetimerange"
+                :disabled="disable" size="small" style="width:100%" range-separator="至" start-placeholder="开始日期"
+                end-placeholder="结束日期" />
             </el-form-item>
             <!--        day,week,month,year-->
             <el-form-item v-show="twice" label="" prop="interval_type">
@@ -97,27 +94,33 @@
             </el-form-item>
             <!-- 选择日 -->
             <el-form-item v-show="day" label="">
-              <el-time-picker v-model="ruleForm.execute_at" class="date-box" format="HH:mm:ss" size="small" :disabled="disable" placeholder="开始时间" value-format="HH:mm:ss" />
-              <el-time-picker v-model="ruleForm.execute_util" class="date-box" size="small" placeholder="结束时间" format="HH:mm:ss" :disabled="disable" value-format="HH:mm:ss" />
+              <el-time-picker v-model="ruleForm.execute_at" class="date-box" format="HH:mm:ss" size="small"
+                :disabled="disable" placeholder="开始时间" value-format="HH:mm:ss" />
+              <el-time-picker v-model="ruleForm.execute_util" class="date-box" size="small" placeholder="结束时间"
+                format="HH:mm:ss" :disabled="disable" value-format="HH:mm:ss" />
             </el-form-item>
             <!-- 选择周 -->
             <el-form-item v-show="week" label="">
               <el-row style="height:40px">
                 <el-col :span="6">
-                  <el-select v-model="ruleForm.day_of_week_at" placeholder="请选择周" size="small" class="el-form-item__label" :disabled="disable">
+                  <el-select v-model="ruleForm.day_of_week_at" placeholder="请选择周" size="small"
+                    class="el-form-item__label" :disabled="disable">
                     <el-option v-for="item in weeks" :key="item.id" :label="item.week" :value="item.id" />
                   </el-select>
                 </el-col>
                 <el-col :span="6">
-                  <el-time-picker v-model="ruleForm.execute_at" class="date-box" size="small" format="HH:mm:ss" :disabled="disable" placeholder="开始时间" value-format="HH:mm:ss" />
+                  <el-time-picker v-model="ruleForm.execute_at" class="date-box" size="small" format="HH:mm:ss"
+                    :disabled="disable" placeholder="开始时间" value-format="HH:mm:ss" />
                 </el-col>
                 <el-col :span="6">
-                  <el-select v-model="ruleForm.day_of_week_util" placeholder="请选择周" :disabled="disable" size="small" class="el-form-item__label">
+                  <el-select v-model="ruleForm.day_of_week_util" placeholder="请选择周" :disabled="disable" size="small"
+                    class="el-form-item__label">
                     <el-option v-for="item in weeks" :key="item.id" :label="item.week" :value="item.id" />
                   </el-select>
                 </el-col>
                 <el-col :span="6">
-                  <el-time-picker v-model="ruleForm.execute_util" class="date-box" size="small" format="HH:mm:ss" :disabled="disable" placeholder="结束时间" value-format="HH:mm:ss" />
+                  <el-time-picker v-model="ruleForm.execute_util" class="date-box" size="small" format="HH:mm:ss"
+                    :disabled="disable" placeholder="结束时间" value-format="HH:mm:ss" />
                 </el-col>
               </el-row>
             </el-form-item>
@@ -125,20 +128,24 @@
             <el-form-item v-show="month" label="">
               <el-row style="height:40px">
                 <el-col :span="6">
-                  <el-select v-model="ruleForm.day_start" placeholder="请选择天" size="small" class="el-form-item__label" :disabled="disable">
+                  <el-select v-model="ruleForm.day_start" placeholder="请选择天" size="small" class="el-form-item__label"
+                    :disabled="disable">
                     <el-option v-for="item in months" :key="item.id" :label="item.day" :value="item.id" />
                   </el-select>
                 </el-col>
                 <el-col :span="6">
-                  <el-time-picker v-model="ruleForm.execute_at" class="date-box" size="small" format="HH:mm:ss" placeholder="结束时间" value-format="HH:mm:ss" :disabled="disable" />
+                  <el-time-picker v-model="ruleForm.execute_at" class="date-box" size="small" format="HH:mm:ss"
+                    placeholder="结束时间" value-format="HH:mm:ss" :disabled="disable" />
                 </el-col>
                 <el-col :span="6">
-                  <el-select v-model="ruleForm.day_end" placeholder="请选择天" size="small" class="el-form-item__label" :disabled="disable">
+                  <el-select v-model="ruleForm.day_end" placeholder="请选择天" size="small" class="el-form-item__label"
+                    :disabled="disable">
                     <el-option v-for="item in months" :key="item.id" :label="item.day" :value="item.id" />
                   </el-select>
                 </el-col>
                 <el-col :span="6">
-                  <el-time-picker v-model="ruleForm.execute_util" class="date-box" size="small" placeholder="结束时间" format="HH:mm:ss" value-format="HH:mm:ss" :disabled="disable" />
+                  <el-time-picker v-model="ruleForm.execute_util" class="date-box" size="small" placeholder="结束时间"
+                    format="HH:mm:ss" value-format="HH:mm:ss" :disabled="disable" />
                 </el-col>
               </el-row>
             </el-form-item>
@@ -146,22 +153,28 @@
             <el-form-item v-show="year" label="">
               <el-row style="height:40px">
                 <el-col>
-                  <el-select v-model="ruleForm.month_start" placeholder="请选择月" size="small" class="el-form-item__label" style="width:30%" :disabled="disable">
+                  <el-select v-model="ruleForm.month_start" placeholder="请选择月" size="small" class="el-form-item__label"
+                    style="width:30%" :disabled="disable">
                     <el-option v-for="item in years" :key="item.id" :label="item.month" :value="item.id" />
                   </el-select>
-                  <el-select v-model="ruleForm.day_start" placeholder="请选择天" size="small" class="el-form-item__label" style="width:30%" :disabled="disable">
+                  <el-select v-model="ruleForm.day_start" placeholder="请选择天" size="small" class="el-form-item__label"
+                    style="width:30%" :disabled="disable">
                     <el-option v-for="item in months" :key="item.id" :label="item.day" :value="item.id" />
                   </el-select>
-                  <el-time-picker v-model="ruleForm.execute_at" class="date-box" format="HH:mm:ss" placeholder="开始时间" size="small" value-format="HH:mm:ss" style="width:30%" :disabled="disable" />
+                  <el-time-picker v-model="ruleForm.execute_at" class="date-box" format="HH:mm:ss" placeholder="开始时间"
+                    size="small" value-format="HH:mm:ss" style="width:30%" :disabled="disable" />
                 </el-col>
                 <el-col>
-                  <el-select v-model="ruleForm.month_end" placeholder="请选择月" size="small" class="el-form-item__label" style="width:30%" :disabled="disable">
+                  <el-select v-model="ruleForm.month_end" placeholder="请选择月" size="small" class="el-form-item__label"
+                    style="width:30%" :disabled="disable">
                     <el-option v-for="item in years" :key="item.id" :label="item.month" :value="item.id" />
                   </el-select>
-                  <el-select v-model="ruleForm.day_end" placeholder="请选择天" size="small" class="el-form-item__label" style="width:30%" :disabled="disable">
+                  <el-select v-model="ruleForm.day_end" placeholder="请选择天" size="small" class="el-form-item__label"
+                    style="width:30%" :disabled="disable">
                     <el-option v-for="item in months" :key="item.id" :label="item.day" :value="item.id" />
                   </el-select>
-                  <el-time-picker v-model="ruleForm.execute_util" style="width:30%" class="date-box" size="small" placeholder="结束时间" format="HH:mm:ss" value-format="HH:mm:ss" :disabled="disable" />
+                  <el-time-picker v-model="ruleForm.execute_util" style="width:30%" class="date-box" size="small"
+                    placeholder="结束时间" format="HH:mm:ss" value-format="HH:mm:ss" :disabled="disable" />
                 </el-col>
               </el-row>
             </el-form-item>
@@ -185,14 +198,16 @@
             </el-form-item>
           </el-col>
           <!-- 规则 -->
-          <el-col v-show="activeIndex == '3'" :span="21" style="padding: 10px;overflow: auto;height: 530px;">
+          <el-col v-show="activeIndex == '3'" :span="24" style="padding: 10px;overflow: auto;height: 530px;">
             <el-form-item label="策略类型" prop="rule_type">
-              <el-select v-model="ruleForm.rule_type" placeholder="请选择用途" style="width:30%" :disabled="disable" @change="changeRuleType">
+              <el-select v-model="ruleForm.rule_type" placeholder="请选择用途" style="width:30%" :disabled="disable"
+                @change="changeRuleType">
                 <el-option label="分组" value="G" />
               </el-select>
             </el-form-item>
             <el-form-item label="优先级" prop="display_order">
-              <el-input v-model.trim="ruleForm.displayOrder" clearable placeholder="数字越小优先级高" style="width:30%" :disabled="disable" />
+              <el-input v-model.trim="ruleForm.displayOrder" clearable placeholder="数字越小优先级高" style="width:30%"
+                :disabled="disable" />
             </el-form-item>
             <div v-if="ruleForm.rule_type === 'G'">
               <!--<el-form-item label="事件源类型" prop="event_source_type">
@@ -202,7 +217,8 @@
               </el-form-item>-->
               <el-form-item label="事件源" prop="event_source">
                 <el-select v-model="ruleForm.event_source" :disabled="disable" placeholder="请选择事件源" style="width:50%">
-                  <el-option v-for="item in eventSources" :key="item['probe_key']" :label="item.name" :value="item['probe_key']" />
+                  <el-option v-for="item in eventSources" :key="item['probe_key']" :label="item.name"
+                    :value="item['probe_key']" />
                 </el-select>
               </el-form-item>
               <el-form-item label="运算公式" prop="formular">
@@ -216,129 +232,185 @@
                         <div>
                           <el-form-item label="字段名">
                             <!-- <span>{{ props.row.conditionColumn }}</span> -->
-                            <el-select
-                              v-model="props.row.conditionColumn"
-                              placeholder="请选择条件字段"
-                              clearable
-                              size="small"
-                              :disabled="disable"
-                              @change="
+                            <el-select v-model="props.row.conditionColumn" placeholder="请选择条件字段" clearable size="small"
+                              :disabled="disable" @change="
                                 columnChange(props.row)
                                 setFormular(props.row.conditionColumn)
-                              "
-                            >
-                              <el-option v-for="item in effectExper" :key="item.columnInDB" :label="item.columnName" :value="item.columnInDB" />
+                              ">
+                              <el-option v-for="item in effectExper" :key="item.columnInDB" :label="item.columnName"
+                                :value="item.columnInDB" />
                             </el-select>
                           </el-form-item>
                         </div>
                         <div>
                           <el-form-item label="操作">
-                            <el-select v-if="(props.row.conditionDataType == 'INT' || props.row.conditionDataType == 'FLOAT') && props.row.conditionColumn == 'RecoveredStatus'" v-model="props.row.operator" :disabled="disable" clearable size="small" placeholder="运算符">
-                              <el-option v-for="operator in operatorsIntRecoveredStatus" :key="operator.opertorChar" :label="operator.opertorName" :value="operator.opertorChar" />
+                            <el-select
+                              v-if="(props.row.conditionDataType == 'INT' || props.row.conditionDataType == 'FLOAT') && props.row.conditionColumn == 'RecoveredStatus'"
+                              v-model="props.row.operator" :disabled="disable" clearable size="small" placeholder="运算符">
+                              <el-option v-for="operator in operatorsIntRecoveredStatus" :key="operator.opertorChar"
+                                :label="operator.opertorName" :value="operator.opertorChar" />
                             </el-select>
-                            <el-select v-else-if="(props.row.conditionDataType == 'INT' || props.row.conditionDataType == 'FLOAT') && props.row.conditionColumn == 'isComponent'" v-model="props.row.operator" :disabled="disable" clearable size="small" placeholder="运算符">
-                              <el-option v-for="operator in operatorsIntIsComponent" :key="operator.opertorChar" :label="operator.opertorName" :value="operator.opertorChar" />
+                            <el-select
+                              v-else-if="(props.row.conditionDataType == 'INT' || props.row.conditionDataType == 'FLOAT') && props.row.conditionColumn == 'isComponent'"
+                              v-model="props.row.operator" :disabled="disable" clearable size="small" placeholder="运算符">
+                              <el-option v-for="operator in operatorsIntIsComponent" :key="operator.opertorChar"
+                                :label="operator.opertorName" :value="operator.opertorChar" />
                             </el-select>
-                            <el-select v-else-if="(props.row.conditionDataType == 'INT' || props.row.conditionDataType == 'FLOAT') && props.row.conditionColumn == 'Acknowledged'" v-model="props.row.operator" :disabled="disable" clearable size="small" placeholder="运算符">
-                              <el-option v-for="operator in operatorsIntAcknowledged" :key="operator.opertorChar" :label="operator.opertorName" :value="operator.opertorChar" />
+                            <el-select
+                              v-else-if="(props.row.conditionDataType == 'INT' || props.row.conditionDataType == 'FLOAT') && props.row.conditionColumn == 'Acknowledged'"
+                              v-model="props.row.operator" :disabled="disable" clearable size="small" placeholder="运算符">
+                              <el-option v-for="operator in operatorsIntAcknowledged" :key="operator.opertorChar"
+                                :label="operator.opertorName" :value="operator.opertorChar" />
                             </el-select>
-                            <el-select v-else-if="props.row.conditionDataType == 'INT' || props.row.conditionDataType == 'FLOAT'" v-model="props.row.operator" :disabled="disable" clearable size="small" placeholder="运算符">
-                              <el-option v-for="operator in operatorsInt" :key="operator.opertorChar" :label="operator.opertorName" :value="operator.opertorChar" />
+                            <el-select
+                              v-else-if="props.row.conditionDataType == 'INT' || props.row.conditionDataType == 'FLOAT'"
+                              v-model="props.row.operator" :disabled="disable" clearable size="small" placeholder="运算符">
+                              <el-option v-for="operator in operatorsInt" :key="operator.opertorChar"
+                                :label="operator.opertorName" :value="operator.opertorChar" />
                             </el-select>
-                            <el-select v-else-if="props.row.conditionDataType == 'LONGTIMESTAMP'" v-model="props.row.operator" :disabled="disable" clearable size="small" placeholder="运算符">
-                              <el-option v-for="operator in operatorsTime" :key="operator.opertorChar" :label="operator.opertorName" :value="operator.opertorChar" />
+                            <el-select v-else-if="props.row.conditionDataType == 'LONGTIMESTAMP'"
+                              v-model="props.row.operator" :disabled="disable" clearable size="small" placeholder="运算符">
+                              <el-option v-for="operator in operatorsTime" :key="operator.opertorChar"
+                                :label="operator.opertorName" :value="operator.opertorChar" />
                             </el-select>
-                            <el-select v-else-if="props.row.conditionDataType == 'STRING' && props.row.conditionColumn == 'Node'" v-model="props.row.operator" clearable size="small" placeholder="运算符">
-                              <el-option v-for="operator in operatorsStrNode" :key="operator.opertorChar" :label="operator.opertorName" :value="operator.opertorChar" />
+                            <el-select
+                              v-else-if="props.row.conditionDataType == 'STRING' && props.row.conditionColumn == 'Node'"
+                              v-model="props.row.operator" clearable size="small" placeholder="运算符">
+                              <el-option v-for="operator in operatorsStrNode" :key="operator.opertorChar"
+                                :label="operator.opertorName" :value="operator.opertorChar" />
                             </el-select>
-                            <el-select v-else-if="props.row.conditionDataType == 'STRING' && props.row.conditionColumn == 'EventCategory'" v-model="props.row.operator" clearable size="small" placeholder="运算符">
-                              <el-option v-for="operator in operatorsStrEventCategory" :key="operator.opertorChar" :label="operator.opertorName" :value="operator.opertorChar" />
+                            <el-select
+                              v-else-if="props.row.conditionDataType == 'STRING' && props.row.conditionColumn == 'EventCategory'"
+                              v-model="props.row.operator" clearable size="small" placeholder="运算符">
+                              <el-option v-for="operator in operatorsStrEventCategory" :key="operator.opertorChar"
+                                :label="operator.opertorName" :value="operator.opertorChar" />
                             </el-select>
-                            <el-select v-else-if="props.row.conditionDataType == 'STRING' && props.row.conditionColumn == 'Agent'" v-model="props.row.operator" clearable size="small" placeholder="运算符">
-                              <el-option v-for="operator in operatorsStrAgent" :key="operator.opertorChar" :label="operator.opertorName" :value="operator.opertorChar" />
+                            <el-select
+                              v-else-if="props.row.conditionDataType == 'STRING' && props.row.conditionColumn == 'Agent'"
+                              v-model="props.row.operator" clearable size="small" placeholder="运算符">
+                              <el-option v-for="operator in operatorsStrAgent" :key="operator.opertorChar"
+                                :label="operator.opertorName" :value="operator.opertorChar" />
                             </el-select>
-                            <el-select v-else-if="props.row.conditionDataType == 'STRING' && props.row.conditionColumn == 'Manager'" v-model="props.row.operator" clearable size="small" placeholder="运算符">
-                              <el-option v-for="operator in operatorsStrManager" :key="operator.opertorChar" :label="operator.opertorName" :value="operator.opertorChar" />
+                            <el-select
+                              v-else-if="props.row.conditionDataType == 'STRING' && props.row.conditionColumn == 'Manager'"
+                              v-model="props.row.operator" clearable size="small" placeholder="运算符">
+                              <el-option v-for="operator in operatorsStrManager" :key="operator.opertorChar"
+                                :label="operator.opertorName" :value="operator.opertorChar" />
                             </el-select>
-                            <el-select v-else v-model="props.row.operator" :disabled="disable" clearable size="small" placeholder="运算符">
-                              <el-option v-for="operator in operatorsStr" :key="operator.opertorChar" :label="operator.opertorName" :value="operator.opertorChar" />
+                            <el-select v-else v-model="props.row.operator" :disabled="disable" clearable size="small"
+                              placeholder="运算符">
+                              <el-option v-for="operator in operatorsStr" :key="operator.opertorChar"
+                                :label="operator.opertorName" :value="operator.opertorChar" />
                             </el-select>
                           </el-form-item>
                         </div>
                         <div>
                           <el-form-item label="值" class="labelSP">
-                            <el-date-picker
-                              v-if="props.row.conditionDataType == 'LONGTIMESTAMP'"
-                              v-model="props.row.conditionValue[0]"
-                              :disabled="disable"
-                              value-format="timestamp"
-                              size="small"
-                              type="datetimerange"
-                              range-separator="-"
-                              start-placeholder="开始日期"
-                              end-placeholder="结束日期"
-                              clearable
-                              class="specialDateClass"
-                            />
-                            <el-select v-else-if="props.row.conditionColumn == 'EventCategory'" v-model="props.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false" placeholder="请选择事件分组" clearable>
-                              <el-option v-for="item in resource_types" :key="item.name" :label="item.label_text" :value="item.name" />
+                            <el-date-picker v-if="props.row.conditionDataType == 'LONGTIMESTAMP'"
+                              v-model="props.row.conditionValue[0]" :disabled="disable" value-format="timestamp"
+                              size="small" type="datetimerange" range-separator="-" start-placeholder="开始日期"
+                              end-placeholder="结束日期" clearable class="specialDateClass" />
+                            <el-select v-else-if="props.row.conditionColumn == 'EventCategory'"
+                              v-model="props.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false"
+                              placeholder="请选择事件分组" clearable>
+                              <el-option v-for="item in resource_types" :key="item.name" :label="item.label_text"
+                                :value="item.name" />
                             </el-select>
-                            <el-select v-else-if="props.row.conditionColumn == 'RecoveredStatus'" v-model="props.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false" placeholder="请选择恢复状态" clearable>
-                              <el-option v-for="SItem in recoveredStatusArr" :key="SItem.mappingValue" :value="SItem.mappingValue" :label="SItem.name" />
+                            <el-select v-else-if="props.row.conditionColumn == 'RecoveredStatus'"
+                              v-model="props.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false"
+                              placeholder="请选择恢复状态" clearable>
+                              <el-option v-for="SItem in recoveredStatusArr" :key="SItem.mappingValue"
+                                :value="SItem.mappingValue" :label="SItem.name" />
                             </el-select>
-                            <el-select v-else-if="props.row.conditionColumn == 'isComponent'" v-model="props.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false" placeholder="请选择事件类型" clearable>
-                              <el-option v-for="SItem in isComponentArr" :key="SItem.mappingValue" :value="SItem.mappingValue" :label="SItem.name" />
+                            <el-select v-else-if="props.row.conditionColumn == 'isComponent'"
+                              v-model="props.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false"
+                              placeholder="请选择事件类型" clearable>
+                              <el-option v-for="SItem in isComponentArr" :key="SItem.mappingValue"
+                                :value="SItem.mappingValue" :label="SItem.name" />
                             </el-select>
-                            <el-select v-else-if="props.row.conditionColumn == 'Acknowledged'" v-model="props.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false" placeholder="请选择是否确认" clearable>
-                              <el-option v-for="SItem in acknowledgedArr" :key="SItem.mappingValue" :value="SItem.mappingValue" :label="SItem.name" />
+                            <el-select v-else-if="props.row.conditionColumn == 'Acknowledged'"
+                              v-model="props.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false"
+                              placeholder="请选择是否确认" clearable>
+                              <el-option v-for="SItem in acknowledgedArr" :key="SItem.mappingValue"
+                                :value="SItem.mappingValue" :label="SItem.name" />
                             </el-select>
-                            <el-select v-else-if="props.row.conditionColumn == 'Agent'" v-model="props.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false" placeholder="请选择Probe" clearable>
-                              <el-option v-for="SItem in eventSources" :key="SItem.probe_key" :value="SItem.probe_key" :label="SItem.name" />
+                            <el-select v-else-if="props.row.conditionColumn == 'Agent'"
+                              v-model="props.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false"
+                              placeholder="请选择Probe" clearable>
+                              <el-option v-for="SItem in eventSources" :key="SItem.probe_key" :value="SItem.probe_key"
+                                :label="SItem.name" />
                             </el-select>
-                            <el-select v-else-if="props.row.conditionColumn == 'Manager'" v-model="props.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false" placeholder="请选择Probe" clearable>
-                              <el-option v-for="SItem in manager_types" :key="SItem.Manager" :value="SItem.Manager" :label="SItem.Manager" />
+                            <el-select v-else-if="props.row.conditionColumn == 'Manager'"
+                              v-model="props.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false"
+                              placeholder="请选择Probe" clearable>
+                              <el-option v-for="SItem in manager_types" :key="SItem.Manager" :value="SItem.Manager"
+                                :label="SItem.Manager" />
                             </el-select>
-                            <el-input-number v-else-if="(props.row.conditionDataType == 'INT' || props.row.conditionDataType == 'FLOAT') && props.row.operator != 'between' && props.row.conditionColumn != 'Severity' && props.row.conditionColumn != 'OldSeverity'" v-model="props.row.conditionValue[0]" :disabled="disable" size="small" placeholder="请输入内容" clearable style="width:100%" controls-position="right" :min="1" />
-                            <el-select v-else-if="(props.row.conditionDataType == 'INT' || props.row.conditionDataType == 'FLOAT') && props.row.operator != 'between' && (props.row.conditionColumn == 'Severity' || props.row.conditionColumn == 'OldSeverity') && props.row.operator !== 'in'" v-model="props.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false" placeholder="请选择级别内容" clearable>
-                              <el-option v-for="SItem in SeverityArr" :key="SItem.mappingValue" :value="SItem.mappingValue" :label="SItem.name" />
+                            <el-input-number
+                              v-else-if="(props.row.conditionDataType == 'INT' || props.row.conditionDataType == 'FLOAT') && props.row.operator != 'between' && props.row.conditionColumn != 'Severity' && props.row.conditionColumn != 'OldSeverity'"
+                              v-model="props.row.conditionValue[0]" :disabled="disable" size="small" placeholder="请输入内容"
+                              clearable style="width:100%" controls-position="right" :min="1" />
+                            <el-select
+                              v-else-if="(props.row.conditionDataType == 'INT' || props.row.conditionDataType == 'FLOAT') && props.row.operator != 'between' && (props.row.conditionColumn == 'Severity' || props.row.conditionColumn == 'OldSeverity') && props.row.operator !== 'in'"
+                              v-model="props.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false"
+                              placeholder="请选择级别内容" clearable>
+                              <el-option v-for="SItem in SeverityArr" :key="SItem.mappingValue"
+                                :value="SItem.mappingValue" :label="SItem.name" />
                             </el-select>
-                            <el-select v-else-if="(props.row.conditionDataType == 'INT' || props.row.conditionDataType == 'FLOAT') && props.row.operator != 'between' && (props.row.conditionColumn == 'Severity' || props.row.conditionColumn == 'OldSeverity') && props.row.operator == 'in'" v-model="props.row.conditionValue" :disabled="disable" size="small" :multiple="true" placeholder="请选择级别内容" clearable>
-                              <el-option v-for="SItem in SeverityArr" :key="SItem.mappingValue" :value="SItem.mappingValue" :label="SItem.name" />
+                            <el-select
+                              v-else-if="(props.row.conditionDataType == 'INT' || props.row.conditionDataType == 'FLOAT') && props.row.operator != 'between' && (props.row.conditionColumn == 'Severity' || props.row.conditionColumn == 'OldSeverity') && props.row.operator == 'in'"
+                              v-model="props.row.conditionValue" :disabled="disable" size="small" :multiple="true"
+                              placeholder="请选择级别内容" clearable>
+                              <el-option v-for="SItem in SeverityArr" :key="SItem.mappingValue"
+                                :value="SItem.mappingValue" :label="SItem.name" />
                             </el-select>
-                            <el-row v-else-if="(props.row.conditionDataType == 'INT' || props.row.conditionDataType == 'FLOAT') && props.row.operator == 'between' && (props.row.conditionColumn == 'Severity' || props.row.conditionColumn == 'OldSeverity')" :gutter="4">
+                            <el-row
+                              v-else-if="(props.row.conditionDataType == 'INT' || props.row.conditionDataType == 'FLOAT') && props.row.operator == 'between' && (props.row.conditionColumn == 'Severity' || props.row.conditionColumn == 'OldSeverity')"
+                              :gutter="4">
                               <el-col :span="11">
-                                <el-select v-model="props.row.conditionValue[0]" :disabled="disable" size="small" placeholder="级别内容" clearable>
-                                  <el-option v-for="SItem in SeverityArr" :key="SItem.mappingValue" :value="SItem.mappingValue" :label="SItem.name" />
+                                <el-select v-model="props.row.conditionValue[0]" :disabled="disable" size="small"
+                                  placeholder="级别内容" clearable>
+                                  <el-option v-for="SItem in SeverityArr" :key="SItem.mappingValue"
+                                    :value="SItem.mappingValue" :label="SItem.name" />
                                 </el-select>
                               </el-col>
                               <el-col :span="2" style="text-align: center; line-height: 2rem">
                                 <span>-</span>
                               </el-col>
                               <el-col :span="11">
-                                <el-select v-model="props.row.conditionValue[1]" :disabled="disable" size="small" placeholder="级别内容" clearable>
-                                  <el-option v-for="SItem in SeverityArr" :key="SItem.mappingValue" :value="SItem.mappingValue" :label="SItem.name" />
+                                <el-select v-model="props.row.conditionValue[1]" :disabled="disable" size="small"
+                                  placeholder="级别内容" clearable>
+                                  <el-option v-for="SItem in SeverityArr" :key="SItem.mappingValue"
+                                    :value="SItem.mappingValue" :label="SItem.name" />
                                 </el-select>
                               </el-col>
                             </el-row>
-                            <el-row v-else-if="(props.row.conditionDataType == 'INT' || props.row.conditionDataType == 'FLOAT') && props.row.operator == 'between' && (props.row.conditionColumn != 'Severity' || props.row.conditionColumn != 'OldSeverity')" :gutter="4">
+                            <el-row
+                              v-else-if="(props.row.conditionDataType == 'INT' || props.row.conditionDataType == 'FLOAT') && props.row.operator == 'between' && (props.row.conditionColumn != 'Severity' || props.row.conditionColumn != 'OldSeverity')"
+                              :gutter="4">
                               <el-col :span="11">
-                                <el-input-number v-model="props.row.conditionValue[0]" :disabled="disable" size="small" placeholder="最小值" clearable style="width:100%" controls-position="right" :min="1" />
+                                <el-input-number v-model="props.row.conditionValue[0]" :disabled="disable" size="small"
+                                  placeholder="最小值" clearable style="width:100%" controls-position="right" :min="1" />
                               </el-col>
                               <el-col :span="2" style="text-align: center; line-height: 2rem">
                                 <span>-</span>
                               </el-col>
                               <el-col :span="11">
-                                <el-input-number v-model="props.row.conditionValue[1]" :disabled="disable" size="small" placeholder="最大值" clearable style="width:100%" controls-position="right" :min="1" />
+                                <el-input-number v-model="props.row.conditionValue[1]" :disabled="disable" size="small"
+                                  placeholder="最大值" clearable style="width:100%" controls-position="right" :min="1" />
                               </el-col>
                             </el-row>
-                            <el-input v-else v-model.trim="props.row.conditionValue[0]" type="textarea" :disabled="disable" placeholder="默认值" :value="props.row.conditionValue[0]" />
+                            <el-input v-else v-model.trim="props.row.conditionValue[0]" type="textarea"
+                              :disabled="disable" placeholder="默认值" :value="props.row.conditionValue[0]" />
                           </el-form-item>
                         </div>
                         <div>
                           <el-form-item label="连接符">
                             <!-- <span>{{ props.row.name }}</span> -->
-                            <el-select v-model="props.row.operatorLogic" placeholder="请继续" clearable size="small" style="width: 150px" :disabled="disable">
-                              <el-option v-for="item in operatorLogics" :key="item.opertorLogicChar" :label="item.opertorLogicName" :value="item.opertorLogicChar" />
+                            <el-select v-model="props.row.operatorLogic" placeholder="请继续" clearable size="small"
+                              style="width: 150px" :disabled="disable">
+                              <el-option v-for="item in operatorLogics" :key="item.opertorLogicChar"
+                                :label="item.opertorLogicName" :value="item.opertorLogicChar" />
                             </el-select>
                           </el-form-item>
                         </div>
@@ -347,142 +419,207 @@
                   </el-table-column>
                   <el-table-column label="值">
                     <template slot-scope="scope">
-                      <el-select
-                        v-model="scope.row.conditionColumn"
-                        clearable
-                        size="small"
-                        :disabled="disable"
-                        placeholder="请选择条件字段"
-                        @change="
+                      <el-select v-model="scope.row.conditionColumn" clearable size="small" :disabled="disable"
+                        placeholder="请选择条件字段" @change="
                           columnChange(scope.row)
                           setFormular(scope.row.conditionColumn)
-                        "
-                      >
-                        <el-option v-for="item in effectExper" :key="item.columnInDB" :label="item.columnName" :value="item.columnInDB" />
+                        ">
+                        <el-option v-for="item in effectExper" :key="item.columnInDB" :label="item.columnName"
+                          :value="item.columnInDB" />
                       </el-select>
                     </template>
                   </el-table-column>
                   <el-table-column label="操作">
                     <template slot-scope="scope">
-                      <el-select v-if="(scope.row.conditionDataType == 'INT' || scope.row.conditionDataType == 'FLOAT') && scope.row.conditionColumn == 'RecoveredStatus'" v-model="scope.row.operator" :disabled="disable" clearable size="small" placeholder="运算符">
-                        <el-option v-for="operator in operatorsIntRecoveredStatus" :key="operator.opertorChar" :label="operator.opertorName" :value="operator.opertorChar" />
+                      <el-select
+                        v-if="(scope.row.conditionDataType == 'INT' || scope.row.conditionDataType == 'FLOAT') && scope.row.conditionColumn == 'RecoveredStatus'"
+                        v-model="scope.row.operator" :disabled="disable" clearable size="small" placeholder="运算符">
+                        <el-option v-for="operator in operatorsIntRecoveredStatus" :key="operator.opertorChar"
+                          :label="operator.opertorName" :value="operator.opertorChar" />
                       </el-select>
-                      <el-select v-else-if="(scope.row.conditionDataType == 'INT' || scope.row.conditionDataType == 'FLOAT') && scope.row.conditionColumn == 'isComponent'" v-model="scope.row.operator" :disabled="disable" clearable size="small" placeholder="运算符">
-                        <el-option v-for="operator in operatorsIntIsComponent" :key="operator.opertorChar" :label="operator.opertorName" :value="operator.opertorChar" />
+                      <el-select
+                        v-else-if="(scope.row.conditionDataType == 'INT' || scope.row.conditionDataType == 'FLOAT') && scope.row.conditionColumn == 'isComponent'"
+                        v-model="scope.row.operator" :disabled="disable" clearable size="small" placeholder="运算符">
+                        <el-option v-for="operator in operatorsIntIsComponent" :key="operator.opertorChar"
+                          :label="operator.opertorName" :value="operator.opertorChar" />
                       </el-select>
-                      <el-select v-else-if="(scope.row.conditionDataType == 'INT' || scope.row.conditionDataType == 'FLOAT') && scope.row.conditionColumn == 'Acknowledged'" v-model="scope.row.operator" :disabled="disable" clearable size="small" placeholder="运算符">
-                        <el-option v-for="operator in operatorsIntAcknowledged" :key="operator.opertorChar" :label="operator.opertorName" :value="operator.opertorChar" />
+                      <el-select
+                        v-else-if="(scope.row.conditionDataType == 'INT' || scope.row.conditionDataType == 'FLOAT') && scope.row.conditionColumn == 'Acknowledged'"
+                        v-model="scope.row.operator" :disabled="disable" clearable size="small" placeholder="运算符">
+                        <el-option v-for="operator in operatorsIntAcknowledged" :key="operator.opertorChar"
+                          :label="operator.opertorName" :value="operator.opertorChar" />
                       </el-select>
-                      <el-select v-else-if="scope.row.conditionDataType == 'INT' || scope.row.conditionDataType == 'FLOAT'" v-model="scope.row.operator" :disabled="disable" clearable size="small" placeholder="运算符">
-                        <el-option v-for="operator in operatorsInt" :key="operator.opertorChar" :label="operator.opertorName" :value="operator.opertorChar" />
+                      <el-select
+                        v-else-if="scope.row.conditionDataType == 'INT' || scope.row.conditionDataType == 'FLOAT'"
+                        v-model="scope.row.operator" :disabled="disable" clearable size="small" placeholder="运算符">
+                        <el-option v-for="operator in operatorsInt" :key="operator.opertorChar"
+                          :label="operator.opertorName" :value="operator.opertorChar" />
                       </el-select>
-                      <el-select v-else-if="scope.row.conditionDataType == 'LONGTIMESTAMP'" v-model="scope.row.operator" :disabled="disable" clearable size="small" placeholder="运算符">
-                        <el-option v-for="operator in operatorsTime" :key="operator.opertorChar" :label="operator.opertorName" :value="operator.opertorChar" />
+                      <el-select v-else-if="scope.row.conditionDataType == 'LONGTIMESTAMP'" v-model="scope.row.operator"
+                        :disabled="disable" clearable size="small" placeholder="运算符">
+                        <el-option v-for="operator in operatorsTime" :key="operator.opertorChar"
+                          :label="operator.opertorName" :value="operator.opertorChar" />
                       </el-select>
-                      <el-select v-else-if="scope.row.conditionDataType == 'STRING' && scope.row.conditionColumn == 'Node'" v-model="scope.row.operator" clearable size="small" placeholder="运算符">
-                        <el-option v-for="operator in operatorsStrNode" :key="operator.opertorChar" :label="operator.opertorName" :value="operator.opertorChar" />
+                      <el-select
+                        v-else-if="scope.row.conditionDataType == 'STRING' && scope.row.conditionColumn == 'Node'"
+                        v-model="scope.row.operator" clearable size="small" placeholder="运算符">
+                        <el-option v-for="operator in operatorsStrNode" :key="operator.opertorChar"
+                          :label="operator.opertorName" :value="operator.opertorChar" />
                       </el-select>
-                      <el-select v-else-if="scope.row.conditionDataType == 'STRING' && scope.row.conditionColumn == 'EventCategory'" v-model="scope.row.operator" clearable size="small" placeholder="运算符">
-                        <el-option v-for="operator in operatorsStrEventCategory" :key="operator.opertorChar" :label="operator.opertorName" :value="operator.opertorChar" />
+                      <el-select
+                        v-else-if="scope.row.conditionDataType == 'STRING' && scope.row.conditionColumn == 'EventCategory'"
+                        v-model="scope.row.operator" clearable size="small" placeholder="运算符">
+                        <el-option v-for="operator in operatorsStrEventCategory" :key="operator.opertorChar"
+                          :label="operator.opertorName" :value="operator.opertorChar" />
                       </el-select>
-                      <el-select v-else-if="scope.row.conditionDataType == 'STRING' && scope.row.conditionColumn == 'Agent'" v-model="scope.row.operator" clearable size="small" placeholder="运算符">
-                        <el-option v-for="operator in operatorsStrAgent" :key="operator.opertorChar" :label="operator.opertorName" :value="operator.opertorChar" />
+                      <el-select
+                        v-else-if="scope.row.conditionDataType == 'STRING' && scope.row.conditionColumn == 'Agent'"
+                        v-model="scope.row.operator" clearable size="small" placeholder="运算符">
+                        <el-option v-for="operator in operatorsStrAgent" :key="operator.opertorChar"
+                          :label="operator.opertorName" :value="operator.opertorChar" />
                       </el-select>
-                      <el-select v-else-if="scope.row.conditionDataType == 'STRING' && scope.row.conditionColumn == 'Manager'" v-model="scope.row.operator" clearable size="small" placeholder="运算符">
-                        <el-option v-for="operator in operatorsStrManager" :key="operator.opertorChar" :label="operator.opertorName" :value="operator.opertorChar" />
+                      <el-select
+                        v-else-if="scope.row.conditionDataType == 'STRING' && scope.row.conditionColumn == 'Manager'"
+                        v-model="scope.row.operator" clearable size="small" placeholder="运算符">
+                        <el-option v-for="operator in operatorsStrManager" :key="operator.opertorChar"
+                          :label="operator.opertorName" :value="operator.opertorChar" />
                       </el-select>
-                      <el-select v-else v-model="scope.row.operator" :disabled="disable" clearable size="small" placeholder="运算符">
-                        <el-option v-for="operator in operatorsStr" :key="operator.opertorChar" :label="operator.opertorName" :value="operator.opertorChar" />
+                      <el-select v-else v-model="scope.row.operator" :disabled="disable" clearable size="small"
+                        placeholder="运算符">
+                        <el-option v-for="operator in operatorsStr" :key="operator.opertorChar"
+                          :label="operator.opertorName" :value="operator.opertorChar" />
                       </el-select>
                     </template>
                   </el-table-column>
                   <el-table-column label="值" width="240">
                     <template slot-scope="scope">
-                      <el-date-picker
-                        v-if="scope.row.conditionDataType == 'LONGTIMESTAMP'"
-                        v-model="scope.row.conditionValue[0]"
-                        :disabled="disable"
-                        value-format="timestamp"
-                        size="small"
-                        type="datetimerange"
-                        range-separator="-"
-                        start-placeholder="开始日期"
-                        end-placeholder="结束日期"
-                        clearable
-                        class="specialDateClass"
-                      />
-                      <el-select v-else-if="scope.row.conditionColumn == 'EventCategory'" v-model="scope.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false" placeholder="请选择事件分组" clearable>
-                        <el-option v-for="item in resource_types" :key="item.name" :label="item.label_text" :value="item.name" />
+                      <el-date-picker v-if="scope.row.conditionDataType == 'LONGTIMESTAMP'"
+                        v-model="scope.row.conditionValue[0]" :disabled="disable" value-format="timestamp" size="small"
+                        type="datetimerange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期"
+                        clearable class="specialDateClass" />
+                      <el-select v-else-if="scope.row.conditionColumn == 'EventCategory'"
+                        v-model="scope.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false"
+                        placeholder="请选择事件分组" clearable>
+                        <el-option v-for="item in resource_types" :key="item.name" :label="item.label_text"
+                          :value="item.name" />
                       </el-select>
-                      <el-select v-else-if="scope.row.conditionColumn == 'RecoveredStatus'" v-model="scope.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false" placeholder="请选择恢复状态" clearable>
-                        <el-option v-for="SItem in recoveredStatusArr" :key="SItem.mappingValue" :value="SItem.mappingValue" :label="SItem.name" />
+                      <el-select v-else-if="scope.row.conditionColumn == 'RecoveredStatus'"
+                        v-model="scope.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false"
+                        placeholder="请选择恢复状态" clearable>
+                        <el-option v-for="SItem in recoveredStatusArr" :key="SItem.mappingValue"
+                          :value="SItem.mappingValue" :label="SItem.name" />
                       </el-select>
-                      <el-select v-else-if="scope.row.conditionColumn == 'isComponent'" v-model="scope.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false" placeholder="请选择事件类型" clearable>
-                        <el-option v-for="SItem in isComponentArr" :key="SItem.mappingValue" :value="SItem.mappingValue" :label="SItem.name" />
+                      <el-select v-else-if="scope.row.conditionColumn == 'isComponent'"
+                        v-model="scope.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false"
+                        placeholder="请选择事件类型" clearable>
+                        <el-option v-for="SItem in isComponentArr" :key="SItem.mappingValue" :value="SItem.mappingValue"
+                          :label="SItem.name" />
                       </el-select>
-                      <el-select v-else-if="scope.row.conditionColumn == 'Acknowledged'" v-model="scope.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false" placeholder="请选择是否确认" clearable>
-                        <el-option v-for="SItem in acknowledgedArr" :key="SItem.mappingValue" :value="SItem.mappingValue" :label="SItem.name" />
+                      <el-select v-else-if="scope.row.conditionColumn == 'Acknowledged'"
+                        v-model="scope.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false"
+                        placeholder="请选择是否确认" clearable>
+                        <el-option v-for="SItem in acknowledgedArr" :key="SItem.mappingValue"
+                          :value="SItem.mappingValue" :label="SItem.name" />
                       </el-select>
-                      <el-select v-else-if="scope.row.conditionColumn == 'Agent'" v-model="scope.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false" placeholder="请选择Probe" clearable>
-                        <el-option v-for="SItem in eventSources" :key="SItem.probe_key" :value="SItem.probe_key" :label="SItem.name" />
+                      <el-select v-else-if="scope.row.conditionColumn == 'Agent'" v-model="scope.row.conditionValue[0]"
+                        :disabled="disable" size="small" :multiple="false" placeholder="请选择Probe" clearable>
+                        <el-option v-for="SItem in eventSources" :key="SItem.probe_key" :value="SItem.probe_key"
+                          :label="SItem.name" />
                       </el-select>
-                      <el-select v-else-if="scope.row.conditionColumn == 'Manager'" v-model="scope.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false" placeholder="请选择Probe" clearable>
-                        <el-option v-for="SItem in manager_types" :key="SItem.Manager" :value="SItem.Manager" :label="SItem.Manager" />
+                      <el-select v-else-if="scope.row.conditionColumn == 'Manager'"
+                        v-model="scope.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false"
+                        placeholder="请选择Probe" clearable>
+                        <el-option v-for="SItem in manager_types" :key="SItem.Manager" :value="SItem.Manager"
+                          :label="SItem.Manager" />
                       </el-select>
-                      <el-input-number v-else-if="(scope.row.conditionDataType == 'INT' || scope.row.conditionDataType == 'FLOAT') && scope.row.operator != 'between' && scope.row.conditionColumn != 'Severity' && scope.row.conditionColumn != 'OldSeverity'" v-model="scope.row.conditionValue[0]" :disabled="disable" size="small" placeholder="请输入内容" clearable style="width:100%" controls-position="right" :min="1" />
-                      <el-select v-else-if="(scope.row.conditionDataType == 'INT' || scope.row.conditionDataType == 'FLOAT') && scope.row.operator != 'between' && (scope.row.conditionColumn == 'Severity' || scope.row.conditionColumn == 'OldSeverity') && scope.row.operator !== 'in'" v-model="scope.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false" placeholder="请选择级别内容" clearable>
-                        <el-option v-for="SItem in SeverityArr" :key="SItem.mappingValue" :value="SItem.mappingValue" :label="SItem.name" />
+                      <el-input-number
+                        v-else-if="(scope.row.conditionDataType == 'INT' || scope.row.conditionDataType == 'FLOAT') && scope.row.operator != 'between' && scope.row.conditionColumn != 'Severity' && scope.row.conditionColumn != 'OldSeverity'"
+                        v-model="scope.row.conditionValue[0]" :disabled="disable" size="small" placeholder="请输入内容"
+                        clearable style="width:100%" controls-position="right" :min="1" />
+                      <el-select
+                        v-else-if="(scope.row.conditionDataType == 'INT' || scope.row.conditionDataType == 'FLOAT') && scope.row.operator != 'between' && (scope.row.conditionColumn == 'Severity' || scope.row.conditionColumn == 'OldSeverity') && scope.row.operator !== 'in'"
+                        v-model="scope.row.conditionValue[0]" :disabled="disable" size="small" :multiple="false"
+                        placeholder="请选择级别内容" clearable>
+                        <el-option v-for="SItem in SeverityArr" :key="SItem.mappingValue" :value="SItem.mappingValue"
+                          :label="SItem.name" />
                       </el-select>
-                      <el-select v-else-if="(scope.row.conditionDataType == 'INT' || scope.row.conditionDataType == 'FLOAT') && scope.row.operator != 'between' && (scope.row.conditionColumn == 'Severity' || scope.row.conditionColumn == 'OldSeverity') && scope.row.operator == 'in'" v-model="scope.row.conditionValue" :disabled="disable" size="small" :multiple="true" placeholder="请选择级别内容" clearable>
-                        <el-option v-for="SItem in SeverityArr" :key="SItem.mappingValue" :value="SItem.mappingValue" :label="SItem.name" />
+                      <el-select
+                        v-else-if="(scope.row.conditionDataType == 'INT' || scope.row.conditionDataType == 'FLOAT') && scope.row.operator != 'between' && (scope.row.conditionColumn == 'Severity' || scope.row.conditionColumn == 'OldSeverity') && scope.row.operator == 'in'"
+                        v-model="scope.row.conditionValue" :disabled="disable" size="small" :multiple="true"
+                        placeholder="请选择级别内容" clearable>
+                        <el-option v-for="SItem in SeverityArr" :key="SItem.mappingValue" :value="SItem.mappingValue"
+                          :label="SItem.name" />
                       </el-select>
-                      <el-row v-else-if="(scope.row.conditionDataType == 'INT' || scope.row.conditionDataType == 'FLOAT') && scope.row.operator == 'between' && (scope.row.conditionColumn == 'Severity' || scope.row.conditionColumn == 'OldSeverity')" :gutter="4">
+                      <el-row
+                        v-else-if="(scope.row.conditionDataType == 'INT' || scope.row.conditionDataType == 'FLOAT') && scope.row.operator == 'between' && (scope.row.conditionColumn == 'Severity' || scope.row.conditionColumn == 'OldSeverity')"
+                        :gutter="4">
                         <el-col :span="11">
-                          <el-select v-model="scope.row.conditionValue[0]" :disabled="disable" size="small" placeholder="级别内容" clearable>
-                            <el-option v-for="SItem in SeverityArr" :key="SItem.mappingValue" :value="SItem.mappingValue" :label="SItem.name" />
+                          <el-select v-model="scope.row.conditionValue[0]" :disabled="disable" size="small"
+                            placeholder="级别内容" clearable>
+                            <el-option v-for="SItem in SeverityArr" :key="SItem.mappingValue"
+                              :value="SItem.mappingValue" :label="SItem.name" />
                           </el-select>
                         </el-col>
                         <el-col :span="2" style="text-align: center; line-height: 2rem">
                           <span>-</span>
                         </el-col>
                         <el-col :span="11">
-                          <el-select v-model="scope.row.conditionValue[1]" :disabled="disable" size="small" placeholder="级别内容" clearable>
-                            <el-option v-for="SItem in SeverityArr" :key="SItem.mappingValue" :value="SItem.mappingValue" :label="SItem.name" />
+                          <el-select v-model="scope.row.conditionValue[1]" :disabled="disable" size="small"
+                            placeholder="级别内容" clearable>
+                            <el-option v-for="SItem in SeverityArr" :key="SItem.mappingValue"
+                              :value="SItem.mappingValue" :label="SItem.name" />
                           </el-select>
                         </el-col>
                       </el-row>
-                      <el-row v-else-if="(scope.row.conditionDataType == 'INT' || scope.row.conditionDataType == 'FLOAT') && scope.row.operator == 'between' && (scope.row.conditionColumn != 'Severity' || scope.row.conditionColumn != 'OldSeverity')" :gutter="4">
+                      <el-row
+                        v-else-if="(scope.row.conditionDataType == 'INT' || scope.row.conditionDataType == 'FLOAT') && scope.row.operator == 'between' && (scope.row.conditionColumn != 'Severity' || scope.row.conditionColumn != 'OldSeverity')"
+                        :gutter="4">
                         <el-col :span="11">
-                          <el-input-number v-model="scope.row.conditionValue[0]" :disabled="disable" size="small" placeholder="最小值" clearable style="width:100%" controls-position="right" :min="1" />
+                          <el-input-number v-model="scope.row.conditionValue[0]" :disabled="disable" size="small"
+                            placeholder="最小值" clearable style="width:100%" controls-position="right" :min="1" />
                         </el-col>
                         <el-col :span="2" style="text-align: center; line-height: 2rem">
                           <span>-</span>
                         </el-col>
                         <el-col :span="11">
-                          <el-input-number v-model="scope.row.conditionValue[1]" :disabled="disable" size="small" placeholder="最大值" clearable style="width:100%" controls-position="right" :min="1" />
+                          <el-input-number v-model="scope.row.conditionValue[1]" :disabled="disable" size="small"
+                            placeholder="最大值" clearable style="width:100%" controls-position="right" :min="1" />
                         </el-col>
                       </el-row>
-                      <el-input v-else v-model.trim="scope.row.conditionValue[0]" :disabled="disable" placeholder="默认值" :value="scope.row.conditionValue[0]" />
+                      <el-input v-else v-model.trim="scope.row.conditionValue[0]" :disabled="disable" placeholder="默认值"
+                        :value="scope.row.conditionValue[0]" />
                     </template>
                   </el-table-column>
                   <el-table-column label="逻辑操作" width="80">
                     <template slot-scope="scope">
-                      <el-select v-model="scope.row.operatorLogic" :disabled="disable" placeholder="" clearable size="small">
-                        <el-option v-for="item in operatorLogics" :key="item.opertorLogicChar" :label="item.opertorLogicName" :value="item.opertorLogicChar" :disabled="disable" />
+                      <el-select v-model="scope.row.operatorLogic" :disabled="disable" placeholder="" clearable
+                        size="small">
+                        <el-option v-for="item in operatorLogics" :key="item.opertorLogicChar"
+                          :label="item.opertorLogicName" :value="item.opertorLogicChar" :disabled="disable" />
                       </el-select>
                     </template>
                   </el-table-column>
-                  <el-table-column label="操作" width="35">
+                  <el-table-column label="操作" width="120">
                     <template slot-scope="scope">
-                      <i v-if="ruleForm.expression.length != 1" class="el-icon-delete" :disabled="disable" @click="fieldExpreDelete(scope)" />
-                      <i v-if="scope.$index + 1 == ruleForm.expression.length || scope.$index == ruleForm.expression.length" class="el-icon-circle-plus-outline" :disabled="disable" @click="addExpreClick()" />
+                      <!-- <i v-if="ruleForm.expression.length != 1" class="el-icon-delete" :disabled="disable"
+                        @click="fieldExpreDelete(scope)" />
+                      <i v-if="scope.$index + 1 == ruleForm.expression.length || scope.$index == ruleForm.expression.length"
+                        class="el-icon-circle-plus-outline" :disabled="disable" @click="addExpreClick()" /> -->
+                      <el-button v-if="ruleForm.expression.length != 1" size="mini" type="text" :disabled="disable"
+                        class="el-icon-delete" @click="fieldExpreDelete(scope)">删除</el-button>
+                      <el-button
+                        v-if="scope.$index + 1 == ruleForm.expression.length || scope.$index == ruleForm.expression.length"
+                        size="mini" type="text" :disabled="disable" @click="addExpreClick()"
+                        class="el-icon-circle-plus-outline">新增</el-button>
                     </template>
                   </el-table-column>
                 </el-table>
               </el-form-item>
               <el-form-item label="分组">
-                <el-select v-model="ruleForm.effect[0].effectValue" placeholder="请选择组别" clearable size="small" style="width: 75%" :disabled="disable">
-                  <el-option v-for="item in resource_types" :key="item.name" :label="item.label_text" :value="item.name" />
+                <el-select v-model="ruleForm.effect[0].effectValue" placeholder="请选择组别" clearable size="small"
+                  style="width: 75%" :disabled="disable">
+                  <el-option v-for="item in resource_types" :key="item.name" :label="item.label_text"
+                    :value="item.name" />
                 </el-select>
               </el-form-item>
             </div>
@@ -1473,20 +1610,25 @@ export default {
 </script>
 <style lang="scss" scoped>
 @import '../../../assets/styles/index.scss';
+
 .labelSP {
   width: 100%;
+
   /deep/.el-form-item__content {
     width: 80%;
   }
 }
+
 .dark,
 .light {
   .menuDialog /deep/.el-dialog__body {
     height: 600px !important;
     padding: 0 !important;
   }
+
   .el-menu {
     border-right: solid 1px rgba(66, 170, 211, 0.1) !important;
+
     .el-menu-item:hover,
     .el-menu-item:focus {
       // background:rgb(85, 136, 237)!important;
@@ -1494,6 +1636,7 @@ export default {
     }
   }
 }
+
 .radio-box {
   display: inline-block;
   position: relative;
@@ -1501,6 +1644,7 @@ export default {
   line-height: 25px;
   margin-right: 5px;
 }
+
 .radio {
   display: inline-block;
   width: 25px;
@@ -1511,6 +1655,7 @@ export default {
   background-repeat: no-repeat;
   background-position: 0 0;
 }
+
 .input-radio {
   display: inline-block;
   position: absolute;
@@ -1522,15 +1667,19 @@ export default {
   outline: none;
   -webkit-appearance: none;
 }
+
 .on {
   background-position: -25px 0;
 }
+
 .operateBox {
   padding: 15px;
 }
+
 .showTableBox {
   margin-top: 20px;
   padding: 0px;
+
   .titleBox {
     padding: 10px;
     font-size: 14px;
@@ -1544,18 +1693,21 @@ export default {
     padding: 7px 10px;
   }
 }
+
 .el-date-editor.el-input,
 .el-date-editor.el-input__inner {
   width: 170px;
   // height: 32px;
   // line-height: 32px;
 }
+
 /deep/.el-dialog__body {
   .el-table {
     border: 1px solid rgba(66, 170, 211, 0.2);
     border-bottom: 1px solid rgba(66, 170, 211, 0);
   }
 }
+
 // 特殊表单样式
 .rowStyleForm {
   border: 1px solid rgba(66, 170, 211, 0.2);
@@ -1565,9 +1717,11 @@ export default {
   //   margin-bottom: 0px;
   // }
 }
+
 .light .el-dialog__body .rowStyleForm .el-form-item {
   margin-bottom: 0px !important;
 }
+
 // 特殊日期框样式
 .dark .specialDateClass,
 .light .specialDateClass {
@@ -1575,11 +1729,13 @@ export default {
     width: 60%;
     font-size: 10px;
   }
+
   /deep/.el-range__icon {
     font-size: 10px;
     margin-left: -22px;
     color: transparent;
   }
+
   /deep/.el-range-separator {
     padding: 2px;
     line-height: 10px;
@@ -1588,6 +1744,7 @@ export default {
     font-weight: 700;
     line-height: 18px;
   }
+
   /deep/.el-range__close-icon {
     font-size: 10px;
     color: #c0c4cc;
@@ -1598,6 +1755,7 @@ export default {
     line-height: 26px;
   }
 }
+
 /deep/.el-table--scrollable-x .el-table__body-wrapper {
   overflow-x: hidden;
 }

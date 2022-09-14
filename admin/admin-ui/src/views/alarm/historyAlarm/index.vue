@@ -155,13 +155,13 @@
           <el-input v-model="easySearch.Summary" style="width:250px" clearable size="small" placeholder="请输入描述" @keyup.enter.native="onSearch" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" size="mini" @click="onSearch">查询</el-button>
+          <el-button class="blueButton" size="mini" @click="onSearch">查询</el-button>
           <el-button class="grayButton" size="mini" @click="resetCondition">重置</el-button>
           <el-button class="grayButton" size="mini" @click="resetCondition2">清空条件</el-button>
           <!-- <el-button class="addButton" @click="handleBatchAcknoledge" size="mini">批量确认</el-button>-->
           <!-- <el-button type="warning" size="mini" @click="batchDelete">批量删除</el-button> -->
           <!-- <el-button class="redButton" icon="el-icon-delete" size="mini" :disabled="!idSelections.length" @click="batchDelete">删除</el-button> -->
-          <el-button class="addButton" size="mini" @click="exportSelected">导出</el-button>
+          <el-button class="grayButton"  size="mini" @click="exportSelected">导出</el-button>
         </el-form-item>
       </el-form>
       <!-- <el-tooltip class="item" effect="dark" content="点击切换查询方式" placement="top-start">
@@ -169,7 +169,7 @@
       </el-tooltip> -->
     </div>
     <div class="showTableBox" :style="{ height: OperateBoxHeight + 'px' }">
-      <el-table v-loading="loading" :height="'90%'" :data="dataList" border empty-text=" " element-loading-text="拼命加载中..." @row-dblclick="openDialog" @sort-change="getOrder" @selection-change="handleSelectionChange">
+      <el-table v-loading="loading" :style="{ height: OperateBoxHeight-60 + 'px' }" :data="dataList" empty-text=" " element-loading-text="拼命加载中..." @row-dblclick="openDialog" @sort-change="getOrder" @selection-change="handleSelectionChange">
         <template v-if="!loading" slot="empty" style="height:100%">
           <Deficiency width="45%" height="auto" />
         </template>
@@ -177,7 +177,7 @@
         <!--<el-table-column v-for="column in tableColumns" :show-overflow-tooltip="true" :prop="column.columnInDB" :label="column.columnName" :key="column.columnInDB" :width="flexColumnWidth(column.columnInDB)" :formatter="tableColumnsFormat" />-->
         <el-table-column sortable="custom" prop="Severity" label="级别" show-overflow-tooltip min-width="5%">
           <template slot-scope="scope">
-            <span v-for="item in SeverityArr" :key="item.mappingValue + 'jbv'" :style="{ color: scope.row.Severity == '0' ? '#0587ff' : scope.row.Severity == '1' || scope.row.Severity == '2' ? '#67c23a' : scope.row.Severity == '3' || scope.row.Severity == '4' ? '#e6a23c' : '#f44336' }">
+            <span v-for="item in SeverityArr" :key="item.mappingValue + 'jbv'" :style="{ color: scope.row.Severity == '0' ?'#C1C1C1' : scope.row.Severity == '1' ?'#00EC86': scope.row.Severity == '2' ? '#0098FF' : scope.row.Severity == '3' ?'#FDCC00': scope.row.Severity == '4' ? '#FF9000' : '#FF5161'  }">
               <span v-if="item.mappingValue === scope.row.Severity">{{ item.name }}</span>
             </span>
           </template>
@@ -188,7 +188,8 @@
           <template slot-scope="scope">
             <el-tooltip class="item" effect="dark" content="点击跳转到设备详情页" placement="top">
               <span class="tagLink" @click="turnPage(scope.row)">
-                <i class="el-icon-paperclip" />
+                <!-- <i class="el-icon-paperclip" /> -->
+                <svg-icon icon-class="icon_biaoqian"/>
                 {{ scope.row.Node }}
               </span>
             </el-tooltip>
@@ -203,11 +204,13 @@
         <!-- <el-table-column sortable="custom" prop="Agent" label="Probe" show-overflow-tooltip width="160" align="left" /> -->
         <el-table-column sortable="custom" show-overflow-tooltip prop="EventSeverityType" label="事件类型" align="center" min-width="7%">
           <template slot-scope="scope">
-            <span v-if="scope.row.EventSeverityType == 1">
-              <el-tag type="danger">告警事件</el-tag>
+            <span v-if="scope.row.EventSeverityType == 1" class="brownColor">
+              <!-- <el-tag type="danger">告警事件</el-tag> -->
+              告警事件
             </span>
             <span v-if="scope.row.EventSeverityType == 2">
-              <el-tag type="success">恢复事件</el-tag>
+              <!-- <el-tag type="success">恢复事件</el-tag> -->
+              恢复事件
             </span>
           </template>
         </el-table-column>
@@ -223,11 +226,15 @@
         </el-table-column> -->
         <el-table-column align="center" sortable="custom" prop="Acknowledged" label="确认" show-overflow-tooltip min-width="6%">
           <template slot-scope="scope">
-            <span v-if="scope.row.Acknowledged == 0">
-              <el-tag type="danger">未确认</el-tag>
+            <span v-if="scope.row.Acknowledged == 0" class="brownColor">
+              <!-- <el-tag type="danger"> -->
+                未确认
+              <!-- </el-tag> -->
             </span>
             <span v-else>
-              <el-tag type="success">已确认</el-tag>
+              <!-- <el-tag type="success"> -->
+                已确认
+              <!-- </el-tag> -->
             </span>
           </template>
         </el-table-column>
@@ -386,7 +393,7 @@
               <el-radio-button label="right" size="mini">工单信息</el-radio-button>
             </el-radio-group>
             <div v-if="labelPosition === 'left'" style="padding-top:10px;height:37vh;overflow:auto;">
-              <el-table :data="tableData" border :height="310" style="width: 100%;">
+              <el-table :data="tableData"  :height="310" style="width: 100%;">
                 <template v-if="!loading" slot="empty" style="height:100%">
                   <Deficiency style="padding-top:240px" height="100px" width="auto" />
                 </template>
@@ -413,14 +420,14 @@
         </el-tab-pane>
         <el-tab-pane label="关联策略" name="three">
           <!-- 功能开发中... -->
-          <el-table v-loading="loading4" empty-text=" " element-loading-text="拼命加载中..." :data="rulesNameTable" border :height="500" style="width: 100%;">
+          <el-table v-loading="loading4" empty-text=" " element-loading-text="拼命加载中..." :data="rulesNameTable"  :height="500" style="width: 100%;">
             <template v-if="!loading4" slot="empty" style="height:100%">
               <Deficiency style="padding-top:240px" height="100px" width="auto" />
             </template>
             <el-table-column prop="type" label="策略分类" min-width="15%" />
             <el-table-column prop="value" label="策略名称" min-width="85%">
               <template slot-scope="scope">
-                <span v-for="(item, index) in scope.row.value" :key="index" class="tagLink" @click="turnPage1(scope.row.type, { name: item })"> <i class="el-icon-paperclip" />{{ item }}</span>
+                <span v-for="(item, index) in scope.row.value" :key="index" class="tagLink" @click="turnPage1(scope.row.type, { name: item })"><svg-icon icon-class="icon_biaoqian"/> {{ item }}</span>
               </template>
             </el-table-column>
           </el-table>
@@ -628,14 +635,14 @@
         </el-tab-pane>
         <el-tab-pane label="关联策略" name="three">
           <!-- 功能开发中... -->
-          <el-table v-loading="loading4" empty-text=" " element-loading-text="拼命加载中..." :data="rulesNameTable" border :height="310" style="width: 100%;">
+          <el-table v-loading="loading4" empty-text=" " element-loading-text="拼命加载中..." :data="rulesNameTable"  :height="310" style="width: 100%;">
             <template v-if="!loading4" slot="empty" style="height:100%">
               <Deficiency style="padding-top:240px" height="100px" width="auto" />
             </template>
             <el-table-column prop="type" label="策略分类" />
             <el-table-column prop="value" label="策略名称">
               <template slot-scope="scope">
-                <span v-for="(item, index) in scope.row.value" :key="index" class="tagLink" @click="turnPage1(scope.row.type, { name: item })"> <i class="el-icon-paperclip" />{{ item }}</span>
+                <span v-for="(item, index) in scope.row.value" :key="index" class="tagLink" @click="turnPage1(scope.row.type, { name: item })"><svg-icon icon-class="icon_biaoqian"/> {{ item }}</span>
               </template>
             </el-table-column>
           </el-table>

@@ -3,22 +3,25 @@
     <div ref="OperateBox" class="operateBox">
       <el-form :inline="true" label-width="5rem" label-position="left" @submit.native.prevent>
         <el-form-item label="菜单名称">
-          <el-input v-model.trim="queryParams.menuName" placeholder="请输入菜单名称" clearable size="small" @keyup.enter.native="handleQuery" />
+          <el-input v-model.trim="queryParams.menuName" placeholder="请输入菜单名称" clearable size="small"
+            @keyup.enter.native="handleQuery" />
         </el-form-item>
-        <!-- <el-form-item label="状态">
-          <el-select v-model="queryParams.visible" placeholder="菜单状态" clearable size="small">
-            <el-option v-for="dict in visibleOptions" :key="dict.dictValue" :label="dict.dictLabel" :value="dict.dictValue" />
-          </el-select>
-        </el-form-item> -->
         <el-form-item>
-          <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">查询</el-button>
-          <el-button icon="el-icon-refresh" size="mini" @click="queryParams.menuName='';handleQuery()">重置</el-button>
-          <el-button v-hasPermi="['system:menu:add']" class="addButton" icon="el-icon-plus" size="mini" @click="handleAdd">新增</el-button>
+          <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery" class="blueButton">查询
+          </el-button>
+          <el-button icon="el-icon-refresh" size="mini" @click="queryParams.menuName='';handleQuery()"
+            class="grayButton">重置</el-button>
+          <el-button v-hasPermi="['system:menu:add']" class="grayButton" icon="el-icon-plus" size="mini"
+            @click="handleAdd">新增</el-button>
         </el-form-item>
       </el-form>
     </div>
     <div class="showTableBox" :style="{height:OperateBoxHeight+'px'}">
-      <el-table v-if="menuList.length" v-loading="loading" :data="menuList" row-key="menuId" :tree-props="{children: 'children', hasChildren: 'hasChildren'}">
+      <el-table empty-text=" " element-loading-text="拼命加载中..."  v-loading="loading" :data="menuList" row-key="menuId"
+        :tree-props="{children: 'children', hasChildren: 'hasChildren'}" :style="{height:OperateBoxHeight-60+'px'}">
+        <template v-if="!loading" slot="empty" style="height:100%">
+          <Deficiency width="30%" height="auto" />
+        </template>
         <el-table-column prop="menuName" label="菜单名称" :show-overflow-tooltip="true" width="160" />
         <el-table-column prop="icon" label="图标" align="center" width="100">
           <template slot-scope="scope">
@@ -31,8 +34,8 @@
         <!-- <el-table-column prop="visible" label="状态" :formatter="visibleFormat" width="80" align="center" /> -->
         <el-table-column align="center" label="状态" prop="visible" :show-overflow-tooltip="true">
           <template slot-scope="scope">
-            <el-tag v-if="scope.row.visible === '1'" size="small" type="danger">隐藏</el-tag>
-            <el-tag v-else size="small">显示</el-tag>
+            <span v-if="scope.row.visible === '1'" size="small" type="danger" class="brownColor">隐藏</span>
+            <span v-else size="small">显示</span>
           </template>
         </el-table-column>
         <el-table-column label="创建时间" align="center" prop="createTime" :show-overflow-tooltip="true">
@@ -43,16 +46,15 @@
         <el-table-column prop="remark" label="备注" :show-overflow-tooltip="true" align="center" />
         <el-table-column label="操作" align="center" :show-overflow-tooltip="true" width="200">
           <template slot-scope="scope">
-            <el-button v-hasPermi="['system:menu:edit']" size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)">修改</el-button>
-            <el-button v-hasPermi="['system:menu:add']" size="mini" type="text" class="addButton" icon="el-icon-plus" @click="handleAdd(scope.row)">新增</el-button>
-            <el-button v-hasPermi="['system:menu:remove']" size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)">删除</el-button>
+            <el-button v-hasPermi="['system:menu:edit']" size="mini" type="text" icon="el-icon-edit"
+              @click="handleUpdate(scope.row)">修改</el-button>
+            <el-button v-hasPermi="['system:menu:add']" size="mini" type="text" class="addButton" icon="el-icon-plus"
+              @click="handleAdd(scope.row)">新增</el-button>
+            <el-button v-hasPermi="['system:menu:remove']" size="mini" type="text" icon="el-icon-delete"
+              @click="handleDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
-      <div v-else class="noneDateBox">
-        <img src="../../../assets/common/nonedata.png" width="25%">
-        <div>&nbsp;&nbsp;暂无数据~</div>
-      </div>
     </div>
     <!-- 添加或修改菜单对话框 -->
     <el-dialog :title="title" :visible.sync="open">
@@ -60,7 +62,8 @@
         <el-row>
           <el-col :span="24">
             <el-form-item label="上级菜单">
-              <treeselect v-model="form.parentId" :options="menuOptions" :normalizer="normalizer" :show-count="true" placeholder="选择上级菜单" />
+              <treeselect v-model="form.parentId" :options="menuOptions" :normalizer="normalizer" :show-count="true"
+                placeholder="选择上级菜单" />
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -74,10 +77,12 @@
           </el-col>
           <el-col :span="24">
             <el-form-item v-if="form.menuType != 'F'" label="菜单图标">
-              <el-popover placement="bottom-start" width="460" trigger="click" popper-class="select-dropdown-style" @show="$refs['iconSelect'].reset()">
+              <el-popover placement="bottom-start" width="460" trigger="click" popper-class="select-dropdown-style"
+                @show="$refs['iconSelect'].reset()">
                 <IconSelect ref="iconSelect" @selected="selected" />
                 <el-input slot="reference" v-model.trim="form.icon" placeholder="点击选择图标" readonly>
-                  <svg-icon v-if="form.icon" slot="prefix" :icon-class="form.icon" class="el-input__icon" style="height: 32px;width: 16px;" />
+                  <svg-icon v-if="form.icon" slot="prefix" :icon-class="form.icon" class="el-input__icon"
+                    style="height: 32px;width: 16px;" />
                   <i v-else slot="prefix" class="el-icon-search el-input__icon" />
                 </el-input>
               </el-popover>
@@ -119,7 +124,8 @@
           <el-col :span="24">
             <el-form-item v-if="form.menuType != 'F'" label="菜单状态">
               <el-radio-group v-model="form.visible">
-                <el-radio v-for="dict in visibleOptions" :key="dict.dictValue" :label="dict.dictValue">{{ dict.dictLabel }}</el-radio>
+                <el-radio v-for="dict in visibleOptions" :key="dict.dictValue" :label="dict.dictValue">{{ dict.dictLabel
+                }}</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
@@ -144,10 +150,11 @@ import {
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import IconSelect from '@/components/IconSelect'
+import Deficiency from '@/components/Deficiency'
 
 export default {
   name: 'Menu',
-  components: { Treeselect, IconSelect },
+  components: { Treeselect, IconSelect,Deficiency },
   data() {
     return {
       // 页面高度
