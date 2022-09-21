@@ -6,17 +6,20 @@
           <el-input v-model.trim="queryParams.roleName" placeholder="请输入角色名称" clearable size="small" @keyup.enter.native="handleQuery" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">查询</el-button>
-          <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+          <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery"  class="blueButton">查询</el-button>
+          <el-button icon="el-icon-refresh" size="mini" @click="resetQuery" class="grayButton">重置</el-button>
         </el-form-item>
         <el-form-item>
-          <el-button v-hasPermi="['system:role:add']" class="addButton" icon="el-icon-plus" size="mini" @click="handleAdd">新增 </el-button>
-          <el-button v-hasPermi="['system:role:remove']" class="redButton" icon="el-icon-delete" size="mini" :disabled="multiple" @click="handleDelete">批量删除 </el-button>
+          <el-button v-hasPermi="['system:role:add']" class="grayButton" icon="el-icon-plus" size="mini" @click="handleAdd">新增 </el-button>
+          <el-button v-hasPermi="['system:role:remove']" class="grayButton" icon="el-icon-delete" size="mini" :disabled="multiple" @click="handleDelete">批量删除 </el-button>
         </el-form-item>
       </el-form>
     </div>
     <div class="showTableBox" :style="{ height: OperateBoxHeight + 'px' }">
-      <el-table v-if="roleList.length" v-loading="loading" :data="roleList" @selection-change="handleSelectionChange">
+      <el-table empty-text=" " element-loading-text="拼命加载中..." v-loading="loading" :data="roleList" @selection-change="handleSelectionChange" :style="{height:OperateBoxHeight-60+'px'}">
+        <template v-if="!loading" slot="empty" style="height:100%">
+          <Deficiency width="30%" height="auto" />
+        </template>
         <el-table-column type="selection" align="center" min-width="2%" />
         <!--      <el-table-column label="角色编号" prop="roleId" width="120" align="center"  />-->
         <el-table-column label="角色名称" prop="roleName" :show-overflow-tooltip="true" min-width="16%" />
@@ -29,8 +32,8 @@
         </el-table-column> -->
         <el-table-column align="center" label="启用" prop="status" :show-overflow-tooltip="true" min-width="8%">
           <template slot-scope="scope">
-            <el-tag v-if="scope.row.status === '1'" size="small" type="danger">不启用</el-tag>
-            <el-tag v-else size="small">启用</el-tag>
+            <span v-if="scope.row.status === '1'" class="brownColor">不启用</span>
+            <span v-else>启用</span>
           </template>
         </el-table-column>
         <el-table-column label="备注" prop="remark" :show-overflow-tooltip="true" align="left" min-width="16%" />
@@ -50,10 +53,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <div v-else class="noneDateBox">
-        <img src="../../../assets/common/nonedata.png" width="25%" />
-        <div>&nbsp;&nbsp;暂无数据~</div>
-      </div>
+      
       <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize" :page-sizes="[20, 50, 200]" @pagination="getList" />
     </div>
     <!-- 添加或修改角色配置对话框 -->
@@ -114,8 +114,10 @@ import { listRole, getRole, delRole, addRole, updateRole, exportRole, dataScope,
 import { treeselect as menuTreeselect, roleMenuTreeselect } from '@/api/system/menu'
 import { treeselect as deptTreeselect, roleDeptTreeselect } from '@/api/system/dept'
 import { getDataTypeOptions, getDataOptions, deleteRoleData, insertRoleData, getRoleData, getRoleDataType, deleteRoleDataTypes, insertRoleDataTypes, getParentDataTypeOptions/* , deleteRoleDataCategory  , insertRoleDataCategory, getRoleDataCategory */} from '@/api/cm/physicalCategory'
+import Deficiency from '@/components/Deficiency'
 
 export default {
+  components: { Deficiency },
   name: 'Role',
   data() {
     return {

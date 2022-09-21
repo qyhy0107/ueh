@@ -1,27 +1,24 @@
 <template>
   <div class="sidebar-logo-container" :class="{ collapse: collapse }">
     <transition name="sidebarLogoFade">
-      <router-link
-        v-if="collapse"
-        key="collapse"
-        class="sidebar-logo-link"
-        :to="toPath"
-      >
-        <!-- <img v-if="logo" :src="logo" class="sidebar-logo" /> -->
+      <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" :to="toPath">
+        <!-- <img v-if="logo" :src="logo" /> -->
+        <svg-icon class-name="logo" icon-class="logo" style="width:22px;height:22px;transform: translate(-50%, 50%);position: absolute;" />
         <!-- <h1 v-else class="sidebar-title">{{ title }}</h1> -->
-        <h1  class="sidebar-title">{{ title }}</h1>
+        <!-- <h1  class="sidebar-title">{{ title }}</h1> -->
       </router-link>
       <router-link v-else key="expand" class="sidebar-logo-link" :to="toPath">
         <!-- <img v-if="logo" :src="logo" class="sidebar-logo" />
         <h1 class="sidebar-title">{{ title }}</h1> -->
-          <h1  class="sidebar-title">{{ title }}</h1>
+        <svg-icon class-name="logo" icon-class="logo" style="width:22px;height:22px;transform: translate(-80%, 50%);position: absolute;" />
+        <h1 class="sidebar-title">{{ title }}</h1>
       </router-link>
     </transition>
   </div>
 </template>
 
 <script>
-/* import logoImg from "@/assets/logo/logo.png"; */
+import logoImg from "@/assets/icons/svg/logo.svg"; 
 import { getRouters } from "@/api/menu";
 import {title} from "@/settings"
 export default {
@@ -35,7 +32,7 @@ export default {
   data() {
     return {
       title: title,
-      /* logo: logoImg, */
+      logo: logoImg, 
       toPath:""
     };
   },
@@ -54,6 +51,7 @@ export default {
 
 <style lang="scss" scoped>
 @import "../../../assets/styles/index.scss";
+
 .sidebarLogoFade-enter-active {
   transition: opacity 1.5s;
 }
@@ -75,6 +73,7 @@ export default {
   border: 1px solid #4481e621;
 
   & .sidebar-logo-link {
+    position: relative;
     height: 100%;
     width: 100%;
 
@@ -82,12 +81,14 @@ export default {
       width: 40px;
       // height: 32px;
       vertical-align: middle;
-      margin-right: 12px;
+      margin-right: 18px;
     }
 
     & .sidebar-title {
       display: inline-block;
-      margin: 0;
+      margin-left: 12px;
+      margin-top:0;
+      margin-bottom: 0;
       color: $white;
       font-weight: 600;
       line-height: 50px;
@@ -105,17 +106,6 @@ export default {
     }
   }
 }
-.dark{
-  .sidebar-logo-container {
-  background-color: rgba(42, 47, 57, 1);
-  border: 1px solid rgba(42, 47, 57, 1);
-  }
-}
-// logo部分亮色背景
-.light{
-  .sidebar-logo-container {
-  background-color: #363636;
-  border: 1px solid #363636;
-  }
-}
+
+
 </style>

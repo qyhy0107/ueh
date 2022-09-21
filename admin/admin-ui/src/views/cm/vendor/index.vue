@@ -23,7 +23,10 @@
       </el-row>
     </div>
     <div class="showTableBox" :style="{height:OperateBoxHeight+'px'}">
-      <el-table v-if="dataList.length" v-loading="loading" :data="dataList" border height="90%">
+      <el-table  v-loading="loading" :data="dataList"  height="90%">
+        <template v-if="!loading" slot="empty" style="height:100%">
+          <Deficiency width="30%" height="auto" />
+        </template>
         <el-table-column align="left" label="厂商名称" prop="name" :show-overflow-tooltip="true" />
         <el-table-column align="left" label="显示名称" prop="labelText" :show-overflow-tooltip="true" />
         <el-table-column align="left" label="显示顺序" prop="displayOrder" :show-overflow-tooltip="true" />
@@ -36,10 +39,6 @@
           </template>
         </el-table-column>
       </el-table>
-      <div v-else class="noneDateBox">
-        <img src="../../../assets/common/nonedata.png" width="25%">
-        <div>&nbsp;&nbsp;暂无数据~</div>
-      </div>
       <pagination v-show="totalCount>0" :page-sizes="[10, 20, 50, 200]" :total="totalCount" :page.sync="queryParams.start" :limit.sync="queryParams.limit" @pagination="handleSearch()" />
     </div>
     <!-- 添加或修改菜单对话框 -->
@@ -85,7 +84,9 @@ import {
   updateVendor,
   delVendor
 } from '@/api/cm/vendor.js'
+import Deficiency from '@/components/Deficiency'
 export default {
+  components: { Deficiency },
   data() {
     return {
 

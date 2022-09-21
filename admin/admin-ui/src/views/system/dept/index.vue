@@ -3,29 +3,32 @@
     <div ref="OperateBox" class="operateBox">
       <el-form :inline="true" @submit.native.prevent>
         <el-form-item label="部门名称">
-          <el-input v-model.trim="queryParams.deptName" placeholder="请输入部门名称" clearable size="small" @keyup.enter.native="handleQuery" />
+          <el-input v-model.trim="queryParams.deptName" placeholder="请输入部门名称" clearable size="small"
+            @keyup.enter.native="handleQuery" />
         </el-form-item>
-        <!-- <el-form-item label="状态">
-          <el-select v-model="queryParams.status" placeholder="部门状态" clearable size="small">
-            <el-option v-for="dict in statusOptions" :key="dict.dictValue" :label="dict.dictLabel" :value="dict.dictValue" />
-          </el-select>
-        </el-form-item> -->
         <el-form-item>
-          <el-button class="filter-item" type="primary" icon="el-icon-search" size="mini" @click="handleQuery">查询</el-button>
-          <el-button icon="el-icon-refresh" size="mini" @click="queryParams.deptName='';handleQuery()">重置</el-button>
-          <el-button v-hasPermi="['system:dept:add']" class="addButton" icon="el-icon-plus" size="mini" @click="handleAdd">新增</el-button>
+          <el-button class="blueButton" type="primary" icon="el-icon-search" size="mini" @click="handleQuery">查询
+          </el-button>
+          <el-button class="grayButton" icon="el-icon-refresh" size="mini"
+            @click="queryParams.deptName='';handleQuery()">重置</el-button>
+          <el-button v-hasPermi="['system:dept:add']" class="grayButton" icon="el-icon-plus" size="mini"
+            @click="handleAdd">新增</el-button>
         </el-form-item>
       </el-form>
     </div>
     <div class="showTableBox" :style="{height:OperateBoxHeight+'px'}">
-      <el-table v-if="deptList.length" v-loading="loading" :data="deptList" row-key="deptId" default-expand-all :tree-props="{children: 'children', hasChildren: 'hasChildren'}">
+      <el-table  empty-text=" " element-loading-text="拼命加载中..."  v-loading="loading" :data="deptList" row-key="deptId" default-expand-all
+        :tree-props="{children: 'children', hasChildren: 'hasChildren'}" :style="{height:OperateBoxHeight-60+'px'}">
+        <template v-if="!loading" slot="empty" style="height:100%">
+          <Deficiency width="30%" height="auto" />
+        </template>
         <el-table-column prop="deptName" label="部门名称" width="260" />
         <el-table-column prop="orderNum" label="排序" width="200" />
         <!-- <el-table-column prop="status" label="状态" :formatter="statusFormat" width="100"></el-table-column> -->
         <el-table-column align="center" label="启用" prop="status" :show-overflow-tooltip="true">
           <template slot-scope="scope">
-            <el-tag v-if="scope.row.status === '1'" size="small" type="danger">不启用</el-tag>
-            <el-tag v-else size="small">启用</el-tag>
+            <span v-if="scope.row.status === '1'" class="brownColor">不启用</span>
+            <span v-else>启用</span>
           </template>
         </el-table-column>
         <el-table-column label="创建时间" align="center" prop="createTime" width="200">
@@ -36,17 +39,16 @@
         <el-table-column label="备注" align="center" prop="remark" width="200" />
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template slot-scope="scope">
-            <el-button v-hasPermi="['system:dept:edit']" size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)">修改</el-button>
-            <el-button v-hasPermi="['system:dept:add']" size="mini" type="text" icon="el-icon-plus" @click="handleAdd(scope.row)">新增</el-button>
-            <!-- <el-button v-if="scope.row.parentId != 0" size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)" v-hasPermi="['system:dept:remove']">删除</el-button> -->
-            <el-button v-hasPermi="['system:dept:remove']" size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)">删除</el-button>
+            <el-button v-hasPermi="['system:dept:edit']" size="mini" type="text" icon="el-icon-edit"
+              @click="handleUpdate(scope.row)">修改</el-button>
+            <el-button v-hasPermi="['system:dept:add']" size="mini" type="text" icon="el-icon-plus"
+              @click="handleAdd(scope.row)">新增</el-button>
+            <el-button v-hasPermi="['system:dept:remove']" size="mini" type="text" icon="el-icon-delete"
+              @click="handleDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
-      <div v-else class="noneDateBox">
-        <img src="../../../assets/common/nonedata.png" width="25%">
-        <div>&nbsp;&nbsp;暂无数据~</div>
-      </div>
+    
     </div>
     <!-- 添加或修改部门对话框 -->
     <el-dialog :title="title" :visible.sync="open">
@@ -54,7 +56,8 @@
         <el-row>
           <el-col v-if="form.parentId !== 0" :span="24">
             <el-form-item label="上级部门" prop="parentId">
-              <treeselect v-model="form.parentId" :options="deptOptions" :normalizer="normalizer" placeholder="选择上级部门" />
+              <treeselect v-model="form.parentId" :options="deptOptions" :normalizer="normalizer"
+                placeholder="选择上级部门" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -85,7 +88,8 @@
           <el-col :span="12">
             <el-form-item label="启用">
               <el-radio-group v-model="form.status">
-                <el-radio v-for="dict in statusOptions" :key="dict.dictValue" :label="dict.dictValue">{{ dict.dictLabel }}</el-radio>
+                <el-radio v-for="dict in statusOptions" :key="dict.dictValue" :label="dict.dictValue">{{ dict.dictLabel
+                }}</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
@@ -115,9 +119,11 @@ import {
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
+import Deficiency from '@/components/Deficiency'
+
 export default {
   name: 'Dept',
-  components: { Treeselect },
+  components: { Treeselect,Deficiency },
   data() {
     return {
       // 页面高度

@@ -42,7 +42,10 @@
       </el-row> -->
     </div>
     <div class="showTableBox" :style="{height:OperateBoxHeight+'px'}">
-      <el-table v-if="typeList.length" v-loading="loading" :data="typeList" @selection-change="handleSelectionChange">
+      <el-table empty-text=" " element-loading-text="拼命加载中..."  v-loading="loading" :data="typeList" @selection-change="handleSelectionChange">
+        <template v-if="!loading" slot="empty" style="height:100%">
+          <Deficiency width="30%" height="auto" />
+        </template>
         <el-table-column type="selection" width="55" align="center" />
         <!-- <el-table-column label="字典编号" align="center" prop="dictId" /> -->
         <el-table-column label="参数组名称" align="left" header-align="left" prop="dictName" width="200" :show-overflow-tooltip="true" />
@@ -74,10 +77,6 @@
           </template>
         </el-table-column>
       </el-table>
-      <div v-else class="noneDateBox">
-        <img src="../../../assets/common/nonedata.png" width="25%">
-        <div>&nbsp;&nbsp;暂无数据~</div>
-      </div>
       <pagination v-show="total>0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize" :page-sizes="[10, 20, 50, 200]" @pagination="getList" />
     </div>
 
@@ -117,7 +116,10 @@ import {
   exportType
 } from '@/api/system/dict/type'
 
+import Deficiency from '@/components/Deficiency'
+
 export default {
+  components: { Deficiency },
   data() {
     return {
       // 页面高度

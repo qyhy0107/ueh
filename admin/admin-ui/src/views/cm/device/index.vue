@@ -8,14 +8,18 @@
               <!-- <el-select v-model="queryParams.classId" placeholder="请选择设备类别" clearable filterable @change="handleQuery">
                 <el-option v-for="item in deviceCategories" :key="item.id" :label="item.labelText" :value="item.id" />
               </el-select> -->
-              <el-select ref="selectUpResId" v-model="queryParams.classId" clearable size="small" placeholder="请选择" @focus="filterText = ''">
+              <el-select ref="selectUpResId" v-model="queryParams.classId" clearable size="small" placeholder="请选择"
+                @focus="filterText = ''">
                 <el-option hidden :value="queryParams.classId" :label="classIdName" />
-                <el-input v-model.trim="filterText" placeholder="输入关键字进行过滤" size="mini" style="margin:5px;margin-bottom:0;width:95%" />
-                <el-tree ref="tree" :filter-node-method="filterNode" :data="deviceCategories1" default-expand-all clearable @node-click="handleNodeClick" />
+                <el-input v-model.trim="filterText" placeholder="输入关键字进行过滤" size="mini"
+                  style="margin:5px;margin-bottom:0;width:95%" />
+                <el-tree ref="tree" :filter-node-method="filterNode" :data="deviceCategories1" default-expand-all
+                  clearable @node-click="handleNodeClick" />
               </el-select>
             </el-form-item>
             <el-form-item label="设备名称">
-              <el-input v-model.trim="queryParams.name" placeholder="请输入设备名称" clearable size="small" @keyup.enter.native="handleQuery" />
+              <el-input v-model.trim="queryParams.name" placeholder="请输入设备名称" clearable size="small"
+                @keyup.enter.native="handleQuery" />
             </el-form-item>
             <!-- <el-form-item label="机柜名称">
               <el-select v-model="queryParams.gname" placeholder="请选择机柜名称" clearable filterable size="small">
@@ -23,35 +27,44 @@
               </el-select>
             </el-form-item> -->
             <el-form-item label="厂商/产品" prop="vendor">
-              <el-select v-model="queryParams.vendor" placeholder="请选择" filterable clearable size="small" @change="handleQuery">
+              <el-select v-model="queryParams.vendor" placeholder="请选择" filterable clearable size="small"
+                @change="handleQuery">
                 <el-option v-for="item in vendors" :key="item.name" :label="item.labelText" :value="item.name" />
               </el-select>
             </el-form-item>
             <el-form-item label="添加时间">
-              <el-date-picker v-model="queryParams.FirstOccurrence" clearable size="small" type="datetimerange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" value-format="timestamp" @change="handleQuery" />
+              <el-date-picker v-model="queryParams.FirstOccurrence" clearable size="small" type="datetimerange"
+                range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" value-format="timestamp"
+                @change="handleQuery" />
             </el-form-item>
             <el-form-item label="启用" prop="isEnable">
               <el-select v-model="queryParams.isEnable" placeholder="请选择" clearable size="small" @change="handleQuery">
-                <el-option v-for="dict in typeOptions" :key="dict.dictValue" :label="dict.dictLabel" :value="dict.dictValue" />
+                <el-option v-for="dict in typeOptions" :key="dict.dictValue" :label="dict.dictLabel"
+                  :value="dict.dictValue" />
               </el-select>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery()">查询</el-button>
-              <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
-              <el-button class="addButton" size="mini" @click="exportSelected">导出</el-button>
+              <el-button class="blueButton" icon="el-icon-search" size="mini" @click="handleQuery()">查询</el-button>
+              <el-button class="grayButton" icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+              <el-button class="grayButton" size="mini" @click="exportSelected">导出</el-button>
               <!-- <el-button class="addButton" size="mini" @click="importDeviceTemplate">下载模板</el-button>
               <el-upload action="/xyz_b/event/importDevice" :headers="headersToken" :on-success="handleAvatarSuccess" :on-progress="onProgress" :file-list="fileList" :show-file-list="false" style="display: inline-block;margin:0 10px;">
                 <el-button size="small" class="addButton">导入</el-button>
               </el-upload> -->
-              <el-button class="addButton" size="mini" :disabled="!idSelections.length" @click="dialogFormVisible = true;startOrStop = 'Y'">批量启停</el-button>
-              <el-button class="addButton" size="mini" @click="handleAdd">新增</el-button>
+              <el-button class="grayButton" size="mini" :disabled="!idSelections.length"
+                @click="dialogFormVisible = true;startOrStop = 'Y'">批量启停</el-button>
+              <el-button class="grayButton" size="mini" @click="handleAdd">新增</el-button>
             </el-form-item>
           </el-form>
         </el-col>
       </el-row>
     </div>
     <div class="showTableBox" :style="{ height: OperateBoxHeight + 'px' }">
-      <el-table v-if="dataList.length" v-loading="loading" :data="dataList" border :height="'90%'" @selection-change="handleSelectionChange">
+      <el-table v-loading="loading" :data="dataList"
+        :style="{ height: OperateBoxHeight-60 + 'px' }" :height="'90%'" @selection-change="handleSelectionChange"  empty-text=" " element-loading-text="拼命加载中...">
+        <template v-if="!loading" slot="empty" style="height:100%">
+          <Deficiency width="30%" height="auto" />
+        </template>
         <el-table-column type="selection" align="center" min-width="5%" :show-overflow-tooltip="true" />
         <el-table-column align="left" label="设备类别" prop="className" min-width="7.5%" :show-overflow-tooltip="true" />
         <el-table-column align="left" label="设备名称" prop="name" min-width="10%" :show-overflow-tooltip="true" />
@@ -92,8 +105,10 @@
         </el-table-column>
         <el-table-column align="center" label="启用" prop="isEnable" min-width="10%" :show-overflow-tooltip="true">
           <template slot-scope="scope">
-            <el-tag v-if="scope.row.isEnable == 'N'" size="small" type="danger">不启用</el-tag>
-            <el-tag v-else size="small">启用</el-tag>
+            <!-- <el-tag v-if="scope.row.isEnable == 'N'" size="small" type="danger">不启用</el-tag>
+            <el-tag v-else size="small">启用</el-tag> -->
+            <span v-if="scope.row.isEnable == 'N'" class="brownColor">不启用</span>
+            <span v-else>启用</span>
           </template>
         </el-table-column>
         <!-- <el-table-column align="center" label="备注" prop="remark" :show-overflow-tooltip="true" /> -->
@@ -105,8 +120,8 @@
           </template>
         </el-table-column>
       </el-table>
-      <Deficiency v-else width="25%" height="auto" />
-      <pagination v-show="totalCount > 0" :page-sizes="[10, 20, 50, 200]" :total="totalCount" :page.sync="queryParams.start" :limit.sync="queryParams.limit" @pagination="getList()" />
+      <pagination v-show="totalCount > 0&&dataList.length" :page-sizes="[10, 20, 50, 200]" :total="totalCount"
+        :page.sync="queryParams.start" :limit.sync="queryParams.limit" @pagination="getList()" />
     </div>
     <!-- 添加或修改菜单对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="50%">
@@ -117,10 +132,13 @@
               <!-- <el-select v-model="form.classId" placeholder="请选择" filterable>
             <el-option v-for="item in deviceCategories" :key="item.id" :label="item.labelText" :value="item.id" />
           </el-select> -->
-              <el-select ref="selectUpResIdform" v-model="form.classId" clearable size="small" placeholder="请选择" @focus="filterText1 = ''">
+              <el-select ref="selectUpResIdform" v-model="form.classId" clearable size="small" placeholder="请选择"
+                @focus="filterText1 = ''">
                 <el-option hidden :value="form.classId" :label="classIdName1" />
-                <el-input v-model="filterText1" placeholder="输入关键字进行过滤" size="mini" style="margin:5px;margin-bottom:0;width:95%" />
-                <el-tree ref="treeForm" :filter-node-method="filterNode" :data="deviceCategories1" default-expand-all @node-click="findGroupByClassId" />
+                <el-input v-model="filterText1" placeholder="输入关键字进行过滤" size="mini"
+                  style="margin:5px;margin-bottom:0;width:95%" />
+                <el-tree ref="treeForm" :filter-node-method="filterNode" :data="deviceCategories1" default-expand-all
+                  @node-click="findGroupByClassId" />
               </el-select>
             </el-form-item>
           </el-col>
@@ -200,7 +218,8 @@
           <el-col>
             <el-form-item label="启用" prop="isEnable">
               <el-radio-group v-model="form.isEnable">
-                <el-radio v-for="dict in typeOptions" :key="dict.dictValue" :label="dict.dictValue">{{ dict.dictLabel }}</el-radio>
+                <el-radio v-for="dict in typeOptions" :key="dict.dictValue" :label="dict.dictValue">{{ dict.dictLabel }}
+                </el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
@@ -222,7 +241,8 @@
       <el-form label-width="37%">
         <el-form-item label="启用" prop="isEnable" style="width:100%">
           <el-radio-group v-model="startOrStop">
-            <el-radio v-for="dict in typeOptions" :key="dict.dictValue" :label="dict.dictValue">{{ dict.dictLabel }}</el-radio>
+            <el-radio v-for="dict in typeOptions" :key="dict.dictValue" :label="dict.dictValue">{{ dict.dictLabel }}
+            </el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
@@ -235,7 +255,7 @@
 </template>
 
 <script>
-import { getResourceList, addResource, getResourceById, updateResource, delResourceById/* , getZabbixHostGroups, getZabbixHost, getHostRelation, startMonitor, stopMonitor  */} from '@/api/cm/device.js'
+import { getResourceList, addResource, getResourceById, updateResource, delResourceById/* , getZabbixHostGroups, getZabbixHost, getHostRelation, startMonitor, stopMonitor  */ } from '@/api/cm/device.js'
 import { getPhysicalCategories } from '@/api/cm/physicalCategory'
 import { listVendor } from '@/api/cm/vendor'
 import { getToken } from '@/utils/auth'
@@ -326,13 +346,13 @@ export default {
     filterText1(val) {
       this.$refs.treeForm.filter(val)
     },
-    'form.classId': function(newValue, oldValue) {
+    'form.classId': function (newValue, oldValue) {
       if (!this.form.classId) {
         this.classIdName1 = ''
       }
       this.findGroupByClassId()
     },
-    'queryParams.classId': function(newValue, oldValue) {
+    'queryParams.classId': function (newValue, oldValue) {
       if (!this.queryParams.classId) {
         this.classIdName = ''
         this.handleQuery()
@@ -490,34 +510,34 @@ export default {
                   }
                   if (this.idSelections.length - 1 === index) {
                     this.msgSuccess('ZABBIX设备修改成功，即将修改门户设备') */
-                    // 修改zabbix上的启用状态
-                    startOrStopDevice({
-                      projectId: this.queryParams.projectId,
-                      engine: 'Freemarker',
-                      ids: this.idSelections,
-                      is_enable: this.startOrStop
-                    }).then((response) => {
-                      // console.log(response)
-                      if (response.success) {
-                        this.msgSuccess('门户设备修改成功')
-                      } else {
-                        this.$message({
-                          showClose: true,
-                          duration: 0,
-                          message: '门户设备修改失败，' + response.errorMsg,
-                          type: 'error'
-                        })
-                      }
-                      this.dialogFormVisible = false
-                      this.handleQuery()
-                    });
-                  //}
-                /* })
-              }
-            })
-          }
-        })
-      }) */
+      // 修改zabbix上的启用状态
+      startOrStopDevice({
+        projectId: this.queryParams.projectId,
+        engine: 'Freemarker',
+        ids: this.idSelections,
+        is_enable: this.startOrStop
+      }).then((response) => {
+        // console.log(response)
+        if (response.success) {
+          this.msgSuccess('门户设备修改成功')
+        } else {
+          this.$message({
+            showClose: true,
+            duration: 0,
+            message: '门户设备修改失败，' + response.errorMsg,
+            type: 'error'
+          })
+        }
+        this.dialogFormVisible = false
+        this.handleQuery()
+      });
+      //}
+      /* })
+    }
+  })
+}
+})
+}) */
     },
     filterNode(value, data) {
       if (!value) return true
@@ -766,7 +786,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       })
-        .then(function() {
+        .then(function () {
           return exportDevice(queryParams)
         })
         .then((response) => {
@@ -777,7 +797,7 @@ export default {
             this.download(msg)
           }
         })
-        .catch(function() {})
+        .catch(function () { })
     },
     getPhysicalCategory() {
       getPhysicalCategories({
@@ -808,7 +828,7 @@ export default {
     },
     // 获取页面高度
     getOperateBoxHeight() {
-      this.$nextTick(function() {
+      this.$nextTick(function () {
         this.OperateBoxHeight = document.getElementsByClassName('app-container')[0].offsetHeight - document.getElementsByClassName('operateBox')[0].offsetHeight - 10
       })
     },
@@ -879,7 +899,7 @@ export default {
             }
           })
         })
-        .catch(function(e) {
+        .catch(function (e) {
           console.error(e.message)
         })
     },
@@ -896,47 +916,47 @@ export default {
             /* startMonitor(this.form).then((response) => {
               if (response.code == 200) {
                 this.msgSuccess('ZABBIX设备修改成功，即将修改门户设备') */
-                updateResource(this.form).then((res) => {
-                  if (res.success) {
-                    this.open = false;
-                    this.getList();
-                    this.msgSuccess('门户设备修改成功');
-                  } else {
-                    this.msgError('门户设备修改失败，' + res.errorMsg)
-                  }
-                })
-                /*
+            updateResource(this.form).then((res) => {
+              if (res.success) {
+                this.open = false;
+                this.getList();
+                this.msgSuccess('门户设备修改成功');
               } else {
-                this.msgInfo('设备修改失败，' + response.msg)
+                this.msgError('门户设备修改失败，' + res.errorMsg)
               }
-            }) */
+            })
+            /*
+          } else {
+            this.msgInfo('设备修改失败，' + response.msg)
+          }
+        }) */
           } else {
             // 新增
             this.form.projectId = this.queryParams.projectId
             /* startMonitor(this.form).then((response) => {
               if (response.code == 200) {
                 this.msgSuccess('ZABBIX设备新增成功，即将添加门户设备') */
-                addResource(this.form).then((res) => {
-                  if (res.success) {
-                    this.msgSuccess('门户设备新增成功');
-                    this.open = false;
-                    this.getList();
-                  } else {
-                    // this.msgError('门户设备新增失败，' + res.errorMsg)
-                    this.$message({
-                      showClose: true,
-                      duration: 0,
-                      message: '门户设备新增失败，' + res.errorMsg,
-                      type: 'error'
-                    })
-                  }
-                })
-                /* this.open = false
-                this.getList()
+            addResource(this.form).then((res) => {
+              if (res.success) {
+                this.msgSuccess('门户设备新增成功');
+                this.open = false;
+                this.getList();
               } else {
-                this.msgInfo('设备新增失败，' + response.msg)
+                // this.msgError('门户设备新增失败，' + res.errorMsg)
+                this.$message({
+                  showClose: true,
+                  duration: 0,
+                  message: '门户设备新增失败，' + res.errorMsg,
+                  type: 'error'
+                })
               }
-            }) */
+            })
+            /* this.open = false
+            this.getList()
+          } else {
+            this.msgInfo('设备新增失败，' + response.msg)
+          }
+        }) */
           }
         }
       })
@@ -1033,11 +1053,13 @@ export default {
 </script>
 <style lang="scss" scoped>
 @import '../../../assets/styles/index.scss';
+
 .operateBox {
   //   border-radius: 4px;
   padding: 0;
   padding-left: 15px;
 }
+
 .showTableBox {
   margin-top: 20px;
   padding: 0px;
@@ -1052,6 +1074,7 @@ export default {
   font-size: 12px;
   cursor: pointer;
   color: #c0d0d0;
+
   i {
     color: rgba(24, 144, 255, 1);
   }

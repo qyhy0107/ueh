@@ -34,34 +34,44 @@
             <el-col :lg="24" :xl="24">
               <el-form ref="queryForm" :model="queryParams" :inline="true" label-position="left" @submit.native.prevent>
                 <el-form-item prop="condition">
-                  <el-input v-model.trim="queryParams.condition" placeholder="请输入查询条件" clearable size="small" @keyup.enter.native="handleQuery" />
+                  <el-input v-model.trim="queryParams.condition" placeholder="请输入查询条件" clearable size="small"
+                    @keyup.enter.native="handleQuery" />
                 </el-form-item>
                 <el-form-item label="启用" prop="isEnable">
-                  <el-select v-model="queryParams.isEnable" placeholder="请选择" clearable size="small" @change="handleQuery">
-                    <el-option v-for="dict in typeOptions" :key="dict.dictValue" :label="dict.dictLabel" :value="dict.dictValue" />
+                  <el-select v-model="queryParams.isEnable" placeholder="请选择" clearable size="small"
+                    @change="handleQuery">
+                    <el-option v-for="dict in typeOptions" :key="dict.dictValue" :label="dict.dictLabel"
+                      :value="dict.dictValue" />
                   </el-select>
                 </el-form-item>
                 <el-form-item>
-                  <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">查询</el-button>
-                  <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+                  <el-button class="blueButton" icon="el-icon-search" size="mini" @click="handleQuery">查询</el-button>
+                  <el-button class="grayButton" icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
                 </el-form-item>
                 <el-form-item>
-                  <el-button class="addButton" icon="el-icon-plus" size="mini" @click="handleAdd">新增</el-button>
+                  <el-button class="grayButton" icon="el-icon-plus" size="mini" @click="handleAdd">新增</el-button>
                 </el-form-item>
               </el-form>
             </el-col>
           </el-row>
         </div>
         <div class="showTableBox" :style="{ height: OperateBoxHeight + 'px' }">
-          <el-table v-if="groupList.length" v-loading="loading" :data="groupList" @selection-change="handleSelectionChange">
+          <el-table v-loading="loading" empty-text=" " element-loading-text="拼命加载中..." :data="groupList" @selection-change="handleSelectionChange"
+            :style="{ height: OperateBoxHeight-60+ 'px' }">
+            <template v-if="!loading" slot="empty" style="height:100%">
+              <Deficiency width="30%" height="auto" />
+            </template>
             <el-table-column v-if="show" align="left" width="140" label="id" prop="id" :show-overflow-tooltip="true" />
             <el-table-column label="被通知组名称" prop="groupName" header-align="left" align="left" width="140" />
-            <el-table-column label="关联设备类别" align="left" prop="categoryNames" header-align="left" />
+            <el-table-column label="关联设备类别" align="left" prop="categoryNames" header-align="left"
+              :show-overflow-tooltip="true" />
             <el-table-column label="修改时间" align="left" header-align="left" prop="modifyTime" width="155" />
             <el-table-column label="启用" prop="isEnabled" header-align="left" align="left" width="90">
               <template slot-scope="scope">
-                <el-tag v-if="scope.row.isEnabled == 'N'" size="small" type="danger">不启用</el-tag>
-                <el-tag v-else size="small">启用</el-tag>
+                <!-- <el-tag v-if="scope.row.isEnabled == 'N'" size="small" type="danger">不启用</el-tag>
+                <el-tag v-else size="small">启用</el-tag> -->
+                <span v-if="scope.row.isEnable == 'N'" class="brownColor">不启用</span>
+                <span v-else>启用</span>
               </template>
             </el-table-column>
             <el-table-column label="备注" align="left" header-align="left" prop="remark" width="140" />
@@ -72,11 +82,8 @@
               </template>
             </el-table-column>
           </el-table>
-          <div v-else class="noneDateBox">
-            <img src="../../../../assets/common/nonedata.png" width="25%" />
-            <div>&nbsp;&nbsp;暂无数据~</div>
-          </div>
-          <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize" :page-sizes="[20, 50, 200]" @pagination="getList" />
+          <pagination v-show="total > 0" :total="total" :page.sync="queryParams.pageNum"
+            :limit.sync="queryParams.pageSize" :page-sizes="[20, 50, 200]" @pagination="getList" />
         </div>
       </el-col>
     </el-row>
@@ -91,13 +98,19 @@
           <!-- <el-select v-model="form.categoryIds" placeholder="请选择关联设备分类" filterable multiple clearable>
             <el-option v-for="category in categories" :key="category.categoryId" :label="category.name" :value="category.categoryId" />
           </el-select> -->
-          <el-select ref="selectUpResIdform" v-model="form.categoryIds" multiple clearable size="small" placeholder="请选择关联设备分类" @clear="clearSelect">
-            <el-option v-for="category in categories" :key="category.categoryId" hidden :label="category.name" :value="category.categoryId" />
+          <el-select style="width:100%" ref="selectUpResIdform" v-model="form.categoryIds" multiple clearable
+            size="small" placeholder="请选择关联设备分类" @clear="clearSelect">
+            <el-option v-for="category in categories" :key="category.categoryId" hidden :label="category.name"
+              :value="category.categoryId" />
             <!-- <el-option hidden :value="form.classId" :label="classIdName1" /> -->
-            <el-input v-model.trim="filterText1" placeholder="输入关键字进行过滤" size="mini" style="margin:5px;margin-bottom:0;width:95%" />
-            <el-tree ref="treeForm" node-key="id" show-checkbox :filter-node-method="filterNode" :data="deviceCategories1" default-expand-all :check-strictly="true" :default-checked-keys="form.categoryIds" @check="findGroupByClassId">
+            <el-input v-model.trim="filterText1" placeholder="输入关键字进行过滤" size="mini"
+              style="margin:5px;margin-bottom:0;width:95%" />
+            <el-tree ref="treeForm" node-key="id" show-checkbox :filter-node-method="filterNode"
+              :data="deviceCategories1" default-expand-all :check-strictly="true"
+              :default-checked-keys="form.categoryIds" @check="findGroupByClassId">
               <div slot-scope="{ node, data }" class="custom-tree-node" style="width:100%">
-                <span v-if="data.disabled" style="color:rgb(132 130 130);cursor:no-drop;display:inline-block;width:100%">{{ node.label }}</span>
+                <span v-if="data.disabled"
+                  style="color:rgb(132 130 130);cursor:no-drop;display:inline-block;width:100%">{{ node.label }}</span>
                 <span v-else>{{ node.label }}</span>
               </div>
             </el-tree>
@@ -141,11 +154,13 @@ import { listRole } from '@/api/system/role'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { getPhysicalCategories } from '@/api/cm/physicalCategory'
+// 省缺组件
+import Deficiency from '@/components/Deficiency'
 import moment from 'moment'
 import { addGroup, addGroupCategory, deleteGroup, deleteGroupCategory, findCategorySelect, findGroupIdByName, getCategoryIds, getGroupById, listGroups, updateGroup, updateGroupCategory } from '@/api/cm/handle/group/group'
 
 export default {
-  components: { Treeselect },
+  components: { Treeselect, Deficiency },
   data() {
     return {
       filterText1: '',
@@ -262,7 +277,7 @@ export default {
     },
     // 获取页面高度
     getOperateBoxHeight() {
-      this.$nextTick(function() {
+      this.$nextTick(function () {
         this.OperateBoxHeight = document.getElementsByClassName('app-container')[0].offsetHeight - document.getElementsByClassName('operateBox')[0].offsetHeight - 10
       })
     },
@@ -332,13 +347,13 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       })
-        .then(function() {
+        .then(function () {
           return changeUserStatus(row.userId, row.status)
         })
         .then(() => {
           this.msgSuccess(text + '成功')
         })
-        .catch(function() {
+        .catch(function () {
           row.status = row.status === '0' ? '1' : '0'
         })
     },
@@ -446,10 +461,10 @@ export default {
             }
           })
         })
-        .catch(() => {})
+        .catch(() => { })
     },
     /** 提交按钮 */
-    submitForm: function() {
+    submitForm: function () {
       this.$refs['form'].validate((valid) => {
         if (valid) {
           const projectId = localStorage.getItem('project_id')
@@ -512,7 +527,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       })
-        .then(function() {
+        .then(function () {
           return deleteGroup({ id, projectId: localStorage.getItem('project_id') })
         })
         .then(() => {
@@ -522,7 +537,7 @@ export default {
           this.getList()
           this.msgSuccess('删除成功')
         })
-        .catch(function() {
+        .catch(function () {
           this.msgError('删除失败')
         })
     }

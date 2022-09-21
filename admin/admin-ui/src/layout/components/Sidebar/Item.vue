@@ -19,6 +19,9 @@ export default {
     if (icon) {
       vnodes.push(<svg-icon icon-class={icon}/>)
     }
+    if(!icon){
+      vnodes.push(<svg-icon style='width:10px;height:10px' icon-class='nav_icon00'/>)
+    }
 
     if (title) {
       vnodes.push(<span slot='title'>{(title)}</span>)

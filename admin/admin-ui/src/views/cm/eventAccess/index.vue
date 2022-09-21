@@ -3,46 +3,39 @@
     <div ref="OperateBox" class="operateBox">
       <el-form :inline="true" :model="formInline" label-position="left">
         <el-form-item label="接入名称">
-          <el-input v-model.trim="formInline.name" clearable size="small" placeholder="请输入名称" @keyup.enter.native="onSearch" />
+          <el-input v-model.trim="formInline.name" clearable size="small" placeholder="请输入名称"
+            @keyup.enter.native="onSearch" />
         </el-form-item>
         <el-form-item label="事件源类型" prop="source_type">
           <el-select v-model="formInline.source_type" clearable placeholder="请选择事件源类型" @change="onSearch">
-            <el-option v-for="item in eventSourceTypeSelect" :key="item.dictLabel" :label="item.dictLabel" :value="item.dictValue" />
+            <el-option v-for="item in eventSourceTypeSelect" :key="item.dictLabel" :label="item.dictLabel"
+              :value="item.dictValue" />
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" size="mini" @click="onSearch">查询</el-button>
-          <el-button class="addButton" size="mini" style="float: right; margin-top: 4px" @click="onAdd">新增</el-button>
-          <el-button size="mini" @click="onRest">重置</el-button>
+          <el-button type="primary" size="mini" @click="onSearch" class="blueButton">查询</el-button>
+          <el-button size="mini" @click="onRest" class="grayButton">重置</el-button>
+          <el-button class="grayButton" size="mini" @click="onAdd">新增</el-button>
         </el-form-item>
       </el-form>
     </div>
     <div class="showTableBox" :style="{ height: OperateBoxHeight + 'px' }">
-      <el-table v-if="dataList.length" :data="dataList" border>
+      <el-table :data="dataList" :style="{ height: OperateBoxHeight-60 + 'px' }" empty-text=" " element-loading-text="拼命加载中..." >
+        <!-- <el-table-column prop="id" label="id" v-if="show" width="160" /> -->
+        <template v-if="!loading" slot="empty" style="height:100%">
+          <Deficiency width="30%" height="auto" />
+        </template>
         <el-table-column v-if="show" prop="id" label="id" width="10" />
         <el-table-column prop="name" label="接入名称" show-overflow-tooltip width="220" />
         <el-table-column prop="sourceType" label="事件源类型" width="180" />
         <el-table-column prop="probeKey" label="接入Key" show-overflow-tooltip width="360" />
-        <!-- <el-table-column prop="isEnable" label="启用" align="center" width="180">
-          <template slot-scope="scope">
-            <el-switch v-model="scope.row.isEnable" :disabled="true" />
-          </template>
-        </el-table-column> -->
         <el-table-column align="center" label="启用" prop="isEnable" :show-overflow-tooltip="true">
           <template slot-scope="scope">
-            <!-- {{ scope.row.isEnable }} -->
-            <el-tag v-if="scope.row.isEnable == false" size="small" type="danger">不启用</el-tag>
-            <el-tag v-else size="small">启用</el-tag>
+            <span v-if="scope.row.isEnable == false" class="brownColor">不启用</span>
+            <span v-else>启用</span>
           </template>
         </el-table-column>
         <el-table-column prop="remark" label="备注" />
-        <!-- <el-table-column label="查看策略" align="center" width="200" class-name="small-padding fixed-width">
-          <template slot-scope="scope">
-            <el-button size="mini" type="text" @click="handleWatch(scope.row)">
-              查看策略
-            </el-button>
-          </template>
-        </el-table-column> -->
         <el-table-column label="操作" align="center" width="200" class-name="small-padding fixed-width">
           <template slot-scope="scope">
             <el-button size="mini" type="text" icon="el-icon-view" @click="handleWatch(scope.row)">查看</el-button>
@@ -51,34 +44,34 @@
           </template>
         </el-table-column>
       </el-table>
-      <Deficiency v-else width="25%" height="auto" />
-      <pagination v-show="totalCount > 0" :page-sizes="[10, 20, 50, 200]" :total="totalCount" :page.sync="queryParams.start" :limit.sync="queryParams.limit" @pagination="getEventProbeDefines()" />
+      <pagination v-show="totalCount > 0&&dataList.length" :page-sizes="[10, 20, 50, 200]" :total="totalCount"
+        :page.sync="queryParams.start" :limit.sync="queryParams.limit" @pagination="getEventProbeDefines()" />
     </div>
     <!-- 添加或修改菜单对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="1000px" class="menuDialog" :before-close="closeHander">
-      <el-row style="height: 100%">
-        <el-col :span="4" style="height: 100%">
-          <el-menu v-model="activeIndex" :default-active="activeIndex" class="el-menu-vertical-demo" @select="IsActive">
-            <el-menu-item index="2">
-              <span slot="title">接入信息</span>
-            </el-menu-item>
-            <el-menu-item index="3">
-              <span slot="title">字段映射</span>
-            </el-menu-item>
-            <el-menu-item index="4">
-              <span slot="title">级别映射</span>
-            </el-menu-item>
-          </el-menu>
-        </el-col>
+      <el-menu v-model="activeIndex" :default-active="activeIndex" mode="horizontal" @select="IsActive">
+        <el-menu-item index="2">
+          <span slot="title">接入信息</span>
+        </el-menu-item>
+        <el-menu-item index="3">
+          <span slot="title">字段映射</span>
+        </el-menu-item>
+        <el-menu-item index="4">
+          <span slot="title">级别映射</span>
+        </el-menu-item>
+      </el-menu>
+      <el-row style="height: 95%">
         <!-- 接入信息 -->
-        <el-col v-show="activeIndex == '2'" :span="20" style="padding: 10px">
+        <el-col v-show="activeIndex == '2'" :span="24" style="padding: 10px">
           <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="100px" class="demo-ruleForm">
             <el-form-item label="接入名称" prop="name">
               <el-input v-model.trim="ruleForm.name" placeholder="请输入字段名称" :disabled="disable" />
             </el-form-item>
             <el-form-item label="事件源类型" prop="sourceType">
-              <el-select v-model="ruleForm.sourceType" :disabled="disable" placeholder="请选择事件源类型" @change="changeSourceType">
-                <el-option v-for="item in eventSourceTypeSelect" :key="item.dictLabel" :label="item.dictLabel" :value="item.dictValue" />
+              <el-select v-model="ruleForm.sourceType" :disabled="disable" placeholder="请选择事件源类型"
+                @change="changeSourceType">
+                <el-option v-for="item in eventSourceTypeSelect" :key="item.dictLabel" :label="item.dictLabel"
+                  :value="item.dictValue" />
               </el-select>
             </el-form-item>
             <el-row>
@@ -88,7 +81,8 @@
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-button class="addButton" size="mini" style="margin-top: 3px; margin-left: 8px" @click="setProbeKey">生成</el-button>
+                <el-button class="grayButton" size="mini" style="margin-top: 3px; margin-left: 8px" @click="setProbeKey">
+                  生成</el-button>
               </el-col>
             </el-row>
             <el-form-item v-show="syslogShow" label="Syslog类型" prop="syslogType">
@@ -97,12 +91,16 @@
                 <el-radio label="N">非标准</el-radio>
               </el-radio-group>
             </el-form-item>
-            <el-form-item v-show="ruleForm.columnMapping1.syslogType === 'N' && syslogShow" label="来源标识" prop="syslogSource">
-              <el-input v-model.trim="ruleForm.columnMapping1.syslogSource" :disabled="disable" placeholder="请输入非标Syslog来源标识" />
+            <el-form-item v-show="ruleForm.columnMapping1.syslogType === 'N' && syslogShow" label="来源标识"
+              prop="syslogSource">
+              <el-input v-model.trim="ruleForm.columnMapping1.syslogSource" :disabled="disable"
+                placeholder="请输入非标Syslog来源标识" />
             </el-form-item>
             <!--  syslogSeparatorCharShow -->
-            <el-form-item v-show="ruleForm.columnMapping1.syslogType === 'N' && syslogShow" label="非标Syslog分割符" prop="syslogType">
-              <el-input v-model.trim="ruleForm.columnMapping1.syslogSeparatorChar" :disabled="disable" placeholder="请输入非标Syslog分隔符" />
+            <el-form-item v-show="ruleForm.columnMapping1.syslogType === 'N' && syslogShow" label="非标Syslog分割符"
+              prop="syslogType">
+              <el-input v-model.trim="ruleForm.columnMapping1.syslogSeparatorChar" :disabled="disable"
+                placeholder="请输入非标Syslog分隔符" />
             </el-form-item>
             <el-form-item label="启用" prop="isEnable">
               <el-switch v-model="ruleForm.isEnable" :disabled="disable" />
@@ -112,8 +110,8 @@
             </el-form-item>
           </el-form>
         </el-col>
-        <el-col v-show="activeIndex == '3'" :span="20" style="padding: 10px">
-          <el-table height="520" border :data="ruleForm.columnMapping1.columnMapping">
+        <el-col v-show="activeIndex == '3'" :span="24" style="padding: 10px">
+          <el-table height="520"  :data="ruleForm.columnMapping1.columnMapping">
             <el-table-column prop="platformColumn" label="平台字段名称" />
             <el-table-column prop="platformDataType" :formatter="getPlatformDataType" label="平台字段类型" />
             <el-table-column label="取值类型" class-name="small-padding fixed-width">
@@ -139,23 +137,26 @@
             </el-table-column>
             <el-table-column label="源字段名称" class-name="small-padding fixed-width">
               <template slot-scope="scope">
-                <el-input v-model.trim="scope.row.sourceColumn" :disabled="disable" placeholder="映射字段名称" :value="scope.row.sourceColumn" />
+                <el-input v-model.trim="scope.row.sourceColumn" :disabled="disable" placeholder="映射字段名称"
+                  :value="scope.row.sourceColumn" />
               </template>
             </el-table-column>
             <el-table-column label="默认值(字段不存在)" class-name="small-padding fixed-width">
               <template slot-scope="scope">
-                <el-input v-model.trim="scope.row.sourceValue" :disabled="disable" placeholder="映射默认值" :value="scope.row.sourceValue" />
+                <el-input v-model.trim="scope.row.sourceValue" :disabled="disable" placeholder="映射默认值"
+                  :value="scope.row.sourceValue" />
               </template>
             </el-table-column>
           </el-table>
         </el-col>
         <!-- 级别映射 -->
-        <el-col v-show="activeIndex == '4'" :span="20" style="padding: 10px">
+        <el-col v-show="activeIndex == '4'" :span="24" style="padding: 10px">
           <el-row>
-            <el-input v-model.trim="ruleForm.severityMapping1.eventSourceSeverityColumn" :disabled="disable" placeholder="请输入级别字段名称" />
+            <el-input v-model.trim="ruleForm.severityMapping1.eventSourceSeverityColumn" :disabled="disable"
+              placeholder="请输入级别字段名称" />
           </el-row>
           <el-row>
-            <el-table height="520" border :data="ruleForm.severityMapping1.valueMapping">
+            <el-table height="480" :data="ruleForm.severityMapping1.valueMapping">
               <el-table-column prop="platformSeverity" label="平台事件告警级别" />
               <el-table-column label="操作符" class-name="small-padding fixed-width">
                 <template slot-scope="scope">
@@ -177,7 +178,8 @@
       <div slot="footer" class="dialog-footer">
         <el-button v-if="!disable" class="cancel_button" @click="resetForm('ruleForm')">取 消</el-button>
         <el-button v-else class="cancel_button" @click="resetForm('ruleForm')">关 闭</el-button>
-        <el-button v-show="!disable" type="primary" class="confirm_button" @click="submitForm('ruleForm')">确 定</el-button>
+        <el-button v-show="!disable" type="primary" class="confirm_button" @click="submitForm('ruleForm')">确 定
+        </el-button>
       </div>
     </el-dialog>
   </div>
@@ -609,8 +611,10 @@ export default {
     height: 600px !important;
     padding: 0 !important;
   }
+
   .el-menu {
     border-right: solid 1px rgba(66, 170, 211, 0.1) !important;
+
     .el-menu-item:hover,
     .el-menu-item:focus {
       // background:rgb(85, 136, 237)!important;

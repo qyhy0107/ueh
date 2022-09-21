@@ -8,18 +8,21 @@
             <el-col :lg="24" :xl="24">
               <el-form ref="queryForm" :model="queryParams" :inline="true" label-position="left">
                 <el-form-item label="用户名" prop="userName">
-                  <el-input v-model.trim="queryParams.userName" placeholder="请输入用户名" clearable size="small" @submit.native.prevent @keyup.enter.native="handleQuery" />
+                  <el-input v-model.trim="queryParams.userName" placeholder="请输入用户名" clearable size="small"
+                    @submit.native.prevent @keyup.enter.native="handleQuery" />
                 </el-form-item>
                 <el-form-item>
-                  <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">查询
+                  <el-button class="blueButton" type="primary" icon="el-icon-search" size="mini" @click="handleQuery">查询
                   </el-button>
-                  <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置
+                  <el-button class="grayButton" icon="el-icon-refresh" size="mini" @click="resetQuery">重置
                   </el-button>
                 </el-form-item>
                 <el-form-item>
-                  <el-button v-hasPermi="['system:user:add']" class="addButton" icon="el-icon-plus" size="mini" @click="handleAdd">新增
+                  <el-button v-hasPermi="['system:user:add']" class="grayButton" icon="el-icon-plus" size="mini"
+                    @click="handleAdd">新增
                   </el-button>
-                  <el-button v-hasPermi="['system:user:remove']" class="redButton" icon="el-icon-delete" size="mini" :disabled="multiple" @click="handleDelete">批量删除
+                  <el-button v-hasPermi="['system:user:remove']" class="grayButton" icon="el-icon-delete" size="mini"
+                    :disabled="multiple" @click="handleDelete">批量删除
                   </el-button>
                 </el-form-item>
               </el-form>
@@ -27,18 +30,26 @@
           </el-row>
         </div>
         <div class="showTableBox" :style="{height:OperateBoxHeight+'px'}">
-          <el-table v-if="userList.length" v-loading="loading" :data="userList" @selection-change="handleSelectionChange">
+          <el-table  v-loading="loading" :data="userList" empty-text=" " element-loading-text="拼命加载中..." 
+            @selection-change="handleSelectionChange" :style="{height:OperateBoxHeight-60+'px'}">
+            <template v-if="!loading" slot="empty" style="height:100%">
+              <Deficiency width="30%" height="auto" />
+            </template>
             <el-table-column type="selection" min-width="2%" align="center" :show-overflow-tooltip="true" />
             <!-- <el-table-column v-if="show" align="left"  label="id" prop="userId" :show-overflow-tooltip="true" /> -->
-            <el-table-column label="用户名" min-width="12%" :show-overflow-tooltip="true" prop="userName" header-align="left" align="left" />
-            <el-table-column label="昵称" min-width="14%" :show-overflow-tooltip="true" prop="nickName" header-align="left" align="left" />
-            <el-table-column label="部门" min-width="12%" :show-overflow-tooltip="true" align="left" header-align="left" prop="dept.deptName" />
-            <el-table-column label="角色" min-width="12%" :show-overflow-tooltip="true" align="left" header-align="left" prop="role" :formatter="getUserRoles" />
+            <el-table-column label="用户名" min-width="12%" :show-overflow-tooltip="true" prop="userName"
+              header-align="left" align="left" />
+            <el-table-column label="昵称" min-width="14%" :show-overflow-tooltip="true" prop="nickName"
+              header-align="left" align="left" />
+            <el-table-column label="部门" min-width="12%" :show-overflow-tooltip="true" align="left" header-align="left"
+              prop="dept.deptName" />
+            <el-table-column label="角色" min-width="12%" :show-overflow-tooltip="true" align="left" header-align="left"
+              prop="role" :formatter="getUserRoles" />
             <el-table-column label="联系电话" min-width="10%" :show-overflow-tooltip="true" prop="phonenumber" />
             <el-table-column align="center" min-width="8%" label="启用" prop="status" :show-overflow-tooltip="true">
               <template slot-scope="scope">
-                <el-tag v-if="scope.row.status === '1'" size="small" type="danger">不启用</el-tag>
-                <el-tag v-else size="small">启用</el-tag>
+                <span v-if="scope.row.status === '1'" class="brownColor">不启用</span>
+                <span v-else>启用</span>
               </template>
             </el-table-column>
             <!-- <el-table-column label="创建时间" align="center" prop="createTime" width="200">
@@ -49,20 +60,21 @@
             <el-table-column min-width="14%" label="备注" align="left" prop="remark" :show-overflow-tooltip="true" />
             <el-table-column min-width="16%" label="操作" align="center" :show-overflow-tooltip="true">
               <template slot-scope="scope">
-                <el-button v-hasPermi="['system:user:edit']" size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)">修改
+                <el-button v-hasPermi="['system:user:edit']" size="mini" type="text" icon="el-icon-edit"
+                  @click="handleUpdate(scope.row)">修改
                 </el-button>
-                <el-button v-if="scope.row.userId !== 1" v-hasPermi="['system:user:remove']" size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)">删除
+                <el-button v-if="scope.row.userId !== 1" v-hasPermi="['system:user:remove']" size="mini" type="text"
+                  icon="el-icon-delete" @click="handleDelete(scope.row)">删除
                 </el-button>
-                <el-button v-hasPermi="['system:user:resetPwd']" size="mini" type="text" icon="el-icon-key" @click="handleResetPwd(scope.row)">密码修改
+                <el-button v-hasPermi="['system:user:resetPwd']" size="mini" type="text" icon="el-icon-key"
+                  @click="handleResetPwd(scope.row)">密码修改
                 </el-button>
               </template>
             </el-table-column>
           </el-table>
-          <div v-else class="noneDateBox">
-            <img src="../../../assets/common/nonedata.png" width="25%">
-            <div>&nbsp;&nbsp;暂无数据~</div>
-          </div>
-          <pagination v-show="total > 0" :page-sizes="[20, 50, 200]" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize" @pagination="getList" />
+         
+          <pagination v-show="total > 0" :page-sizes="[20, 50, 200]" :total="total" :page.sync="queryParams.pageNum"
+            :limit.sync="queryParams.pageSize" @pagination="getList" />
         </div>
       </el-col>
     </el-row>
@@ -87,12 +99,14 @@
 
         <el-form-item label="性别">
           <el-radio-group v-model="form.sex" placeholder="请选择" popper-class="select-dropdown-style">
-            <el-radio v-for="dict in sexOptions" :key="dict.dictValue" :label="dict.dictLabel" :value="dict.dictValue" />
+            <el-radio v-for="dict in sexOptions" :key="dict.dictValue" :label="dict.dictLabel"
+              :value="dict.dictValue" />
           </el-radio-group>
         </el-form-item>
         <el-form-item label="角色" prop="roleId">
           <el-select v-model="form.roleId" placeholder="请选择角色" popper-class="select-dropdown-style">
-            <el-option v-for="item in roleOptions" :key="item.roleId" :label="item.roleName" :value="item.roleId" :disabled="item.status == 1" />
+            <el-option v-for="item in roleOptions" :key="item.roleId" :label="item.roleName" :value="item.roleId"
+              :disabled="item.status == 1" />
           </el-select>
         </el-form-item>
         <el-form-item label="部门" prop="deptId">
@@ -135,9 +149,10 @@ import { listRole } from '@/api/system/role'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import moment from 'moment'
+import Deficiency from '@/components/Deficiency'
 
 export default {
-  components: { Treeselect },
+  components: { Treeselect,Deficiency },
   data() {
     return {
       OperateBoxHeight: 100,

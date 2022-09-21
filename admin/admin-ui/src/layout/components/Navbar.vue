@@ -1,11 +1,7 @@
 <template>
   <div class="navbar">
-    <hamburger
-      id="hamburger-container"
-      :is-active="sidebar.opened"
-      class="hamburger-container"
-      @toggleClick="toggleSideBar"
-    />
+    <hamburger id="hamburger-container" :is-active="sidebar.opened" class="hamburger-container"
+      @toggleClick="toggleSideBar" />
     <breadcrumb id="breadcrumb-container" class="breadcrumb-container" />
     <div class="right-menu">
       <template v-if="device!=='mobile'">
@@ -112,7 +108,7 @@ export default {
   height: 50px;
   overflow: hidden;
   position: relative;
-  background: #042c46;
+  background: #232C36;
   box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
 
   .hamburger-container {
@@ -190,17 +186,18 @@ export default {
     }
   }
 }
-.dark{
+
+.dark {
   .navbar {
-  background: rgba(42, 47, 57, 1);
-  box-shadow: 0px 1px 4px 0px #202020;
+    background: #232C36;
+    box-shadow: 0px 1px 4px 0px #202020;
   }
 }
-.light{
+
+.light {
   .navbar {
     background: #363636;
     box-shadow: 0px 1px 4px 0px #002F35;
   }
 }
-
 </style>

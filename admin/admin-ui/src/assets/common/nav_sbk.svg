@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="260px" height="50px" viewBox="0 0 260 50" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>nav_sbk</title>
+    <defs>
+        <linearGradient x1="-2.22044605e-14%" y1="50%" x2="100%" y2="50%" id="linearGradient-1">
+            <stop stop-color="#00BDFF" offset="0%"></stop>
+            <stop stop-color="#3FFCFF" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="nav_sbk" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g>
+            <polygon id="矩形备份-7" fill="#007DE3" points="0 1.8951854e-13 260 1.8951854e-13 260 50 0 50"></polygon>
+            <polygon id="矩形备份-5" fill="url(#linearGradient-1)" points="0 5.20928786e-13 2 5.20928786e-13 2 50 0 50"></polygon>
+        </g>
+    </g>
+</svg>
