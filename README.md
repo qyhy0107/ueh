@@ -166,7 +166,7 @@ ueh-front|admin-ui|static、favicon.ico、index.html
 
 在浏览器中输入http://<tomcatIP>，当出现如下界面，则表示操作安装成功。
 
-![login](https://github.com/qyhy0107/ueh/blob/master/images/login.png)
+![login](https://github.com/qyhy0107/ueh/raw/master/images/login.png?raw=true)
 
 
 ##### 6. Zabbix告警接入
